@@ -15,7 +15,7 @@ use vars qw($opt_v $opt_V
             $opt_s $opt_d $opt_t
             $opt_S $opt_D $opt_T);
 
-# possible file:colno char separators
+# Alternative file:colno char separators
 my $FCsep = ':;,#';
 
 # Input column separator (smart)
