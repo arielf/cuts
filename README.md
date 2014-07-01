@@ -26,7 +26,7 @@ the human inteface as simple as possible.
 Arguments can be file-names, or column-numbers (negative offsets
 from the end are supported too) or a combo of the two `file:colno`
 
-== reasonable defaults
+## reasonable defaults
 A file-name without a column-number will cause the last
 column-number to be reused.
 
@@ -40,7 +40,7 @@ An undefined file-name will default to /dev/stdin
 The output column separator which is tab by default, can be
 overriden using `-T <sep>` (or -S, or -D).
 
-== A few examples
+## A few examples
 ```
     cuts 0 file1 file2 file3      Extract 1st (0) column from the 3 files
     cuts file1 file2 file3 0      Same as above (order of files vs colnos does n't matter)
