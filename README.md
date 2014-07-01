@@ -41,6 +41,19 @@ An undefined file-name will default to /dev/stdin
 The output column separator which is tab by default, can be
 overriden using `-T <sep>` (or -S, or -D).
 
+## Input flexibility and tolerance to missing data
+
+One thing that `cuts` does is try and be completely tolerant
+and supportive to cases of missing data.  If you try to paste two columns,
+side-by-side, from two files but one of the files is shorter,
+`cuts` will oblige and output the empty field where it is missing
+from the shorter file, until it reaches EOF on the longer file.
+
+Similarly, requesting column 2 (3rd column) when there are only
+2 columns (0,1) in a line will result in an empty output for that
+field rather than resulting in a fatal error.  This is done by
+design and it conforms to the perl philosophy.
+
 ## A few examples
 ```
     cuts 0 file1 file2 file3      Extract 1st (0) column from the 3 files
@@ -148,6 +161,8 @@ even tried to implement fixed-width field support, byte-offsets,
 is missing were much more critical for me, so that what I focused on
 in `cuts`.
 
+Embed the doc in the perl executable, `perldoc` style.
+
 Why do I support the `filename:colno` syntax? you might ask.
 It seems redundant (`filename colno` would work just as well.)
 The main reason is that some time you may have files named `1`, `2` etc.
@@ -159,4 +174,6 @@ which introduces an ambiguity: are these files or column numbers?
       presence of a file by the same name, you can use the
       `file:colno` syntax.  And you may use `;`, `#`, or `,`
       as the file/colno separator instead of `:` for greater control.
+
+
 
