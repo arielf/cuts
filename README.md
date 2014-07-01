@@ -26,7 +26,8 @@ the human inteface as simple as possible.
 Arguments can be file-names, or column-numbers (negative offsets
 from the end are supported too) or a combo of the two `file:colno`
 
-## reasonable defaults
+## Reasonable defaults for everything
+
 A file-name without a column-number will cause the last
 column-number to be reused.
 
@@ -106,4 +107,34 @@ Usage: cuts [Options] [Column_Specs]...
 
         cuts f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
 ```
+
+## TODOs (contributions welcome)
+
+Right now there's no effort being made to make `cuts` fast. Although
+compared to the I/O overhead, there may be not much need for it.  If you
+have ideas on how to make the column extractions and joining more
+efficient, that would be cool.
+
+Per file column input separators.  I haven't had the need so far so
+that took a back-seat in priority.  Obviously if you have both a CSV
+and a TSV this is needed, but the current default multi-match
+pattern `$ICS` already takes care of this most common case by simply
+matching all of: multi-white-space, tabs, or space surrounded commas.
+Even something like:
+```
+$ cat example.csv
+0,1 ,  2
+0,1   ,2
+0,1   ,2
+```
+
+Works correctly with the present trick:
+```
+cuts -1 zz.csv
+2
+2
+2
+```
+
+
 
