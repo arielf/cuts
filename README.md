@@ -57,3 +57,53 @@ overriden using `-T <sep>` (or -S, or -D).
     cuts f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
 ```
 
+## Usage:
+
+Simply call `cuts` without any argument to get a full usage message:
+
+```
+$ cuts
+Usage: cuts [Options] [Column_Specs]...
+    Options:
+        -v              verbose
+        -V              more verbose
+
+        Input column separator options (lowercase):
+        -d <sep>        Use <sep> (perl regexp) as column delimiter
+        -t <sep>        Alias for -d
+        -s <sep>        Another alias for -d
+    
+        Output column separator options (uppercase of same):
+        -D <sep>
+        -T <sep>
+        -S <sep>
+
+    Column_Specs:
+        filename:colno  Extract colno from filename
+        filename        Use filename to extract columns from
+        colno           Use column colno to extract columns
+
+        If there's an excess of colno args, will duplicate the last
+        file arg.  If there's an excess of file args, will duplicate
+        the last colno.
+
+        If omitted:
+            Default file is /dev/stdin
+            Default colno is 0
+
+    Examples:
+        cuts 0 file1 file2 file3      Extract 1st (0) column from the 3 files
+
+        cuts file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
+
+        cuts file1 file2 file3        Same as above (0 is default colno)
+
+        cuts -1 f1 f2 f3              Extract last column from each of f1, f2, and f3
+
+        cuts file1:0 file2:-1         Extract 1st (0) column from file1 and last column from file2
+
+        cuts 0 2 3                    Extract columns (0,2,3) from /dev/stdin
+
+        cuts f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
+```
+
