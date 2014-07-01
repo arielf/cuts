@@ -7,21 +7,25 @@ cuts
 files.  Unfortunately, it is very limited in power.  In particular:
 
 - It doesn't do automatic detection of the file column separator
-- It doesn't support multi-char column separators
+- It doesn't support multi-char column separators, in particular
+  (most commonly missed) "any white-space sequence"
 - It doesn't support perl regexp separators
 - It doesn't support negative (from end) column numbers
 - It fails if you use -t (like `sort` does) for the separator/delimiter instead of -d
-- It doesn't support reasonable defaults, resulting in things like:
+- It generally requires too much typing for simple column extraction tasks
+  and it doesn't support reasonable defaults, resulting in things like:
 ```
     $ cut -d, zz.csv
     cut: you must specify a list of bytes, characters, or fields
 ```
+- It doesn't support multi-file + multi-column mixes (e.g. 2nd col
+  from file1 and 3rd from file2)
 
 Other utilities, like `awk` give you more power at the expense of
 having to learn a much more complex language to do what you want.
-`cuts` is designed to give you the power you need in ~95% of cases
+`cuts` is designed to give you the power you need in most cases
 while always being able to stay on the command line and keeping
-the human inteface as simple as possible.
+the human inteface _as simple as possible_
 
 Arguments can be file-names, or column-numbers (negative offsets
 from the end are supported too) or a combo of the two `file:colno`
