@@ -50,7 +50,7 @@ sub V {
 
 sub usage(@) {
     print STDERR @_, "\n" if @_;
-    die "Usage: $0 [Options] [column_specs]...
+    die "Usage: $0 [Options] [Column_Specs]...
     Options:
         -v              verbose
         -V              more verbose
@@ -65,7 +65,7 @@ sub usage(@) {
         -T <sep>
         -S <sep>
 
-    column_specs:
+    Column_Specs:
         filename:colno  Extract colno from filename
         filename        Use filename to extract columns from
         colno           Use column colno to extract columns
