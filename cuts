@@ -1,0 +1,229 @@
+#!/usr/bin/perl -w
+# vim: ts=4 sw=4 expandtab
+#
+# This is somewhat similar to 'cut' but more powerful: 
+#   - Supports automatic determination of input-column separator
+#   - Supports regexps for input-column separator
+#   - Supports negative (from end) column numbers (-1 is last column)
+#   - Supports multiple input files & columns (e.g. file1:col1 file2:col2)
+#   - More friendly, less need to type prefix options (numbers imply columns)
+#   - Has sensible defaults for everything, less typing needed
+#
+use strict;
+use Getopt::Std;
+use vars qw($opt_v $opt_V
+            $opt_s $opt_d $opt_t
+            $opt_S $opt_D $opt_T);
+
+# possible file:colno char separators
+my $FCsep = ':;,#';
+
+# Input column separator (smart)
+my $ICS = '(?:\s*,\s*|\s+)';
+# Output column separator
+my $OCS = "\t";
+
+# -- names of files to extract columns from, may repeat
+my @Files = ();
+# -- Corresponding column number for each file entry
+my @ColNos;
+# -- Corresponding column separator for each file entry
+my @ColSep;     # per file separator support - not yet implemented
+
+sub v {
+    return unless $opt_v;
+    if (@_ == 1) {
+        print STDERR @_;
+    } else {
+        printf STDERR @_;
+    }
+}
+
+sub V {
+    return unless $opt_V;
+    if (@_ == 1) {
+        print STDERR @_;
+    } else {
+        printf STDERR @_;
+    }
+}
+
+sub usage(@) {
+    print STDERR @_, "\n" if @_;
+    die "Usage: $0 [Options] [column_specs]...
+    Options:
+        -v              verbose
+        -V              more verbose
+
+        Input column separator options (lowercase):
+        -d <sep>        Use <sep> (perl regexp) as column delimiter
+        -t <sep>        Alias for -d
+        -s <sep>        Another alias for -d
+    
+        Output column separator options (uppercase of same):
+        -D <sep>
+        -T <sep>
+        -S <sep>
+
+    column_specs:
+        filename:colno  Extract colno from filename
+        filename        Use filename to extract columns from
+        colno           Use column colno to extract columns
+
+        If there's an excess of colno args, will duplicate the last
+        file arg.  If there's an excess of file args, will duplicate
+        the last colno.
+
+        If omitted:
+            Default file is /dev/stdin
+            Default colno is 0
+
+    Examples:
+        $0 0 file1 file2 file3      Extract 1st (0) column from the 3 files
+
+        $0 file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
+
+        $0 file1 file2 file3        Same as above (0 is default colno)
+
+        $0 -1 f1 f2 f3              Extract last column from each of f1, f2, and f3
+
+        $0 file1:0 file2:-1         Extract 1st (0) column from file1 and last column from file2
+
+        $0 0 2 3                    Extract columns (0,2,3) from /dev/stdin
+
+        $0 f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
+";
+}
+
+#
+# run a subshell + a more informative stack-trace in case of error
+#
+sub subshell($) {
+    my $cmd = shift;
+    my $out = `($cmd) 2>&1`;
+    if ($? != 0) {
+        mydie("\n$0: '$cmd' FAILED:\n$out");
+    }
+    v("$0: '(%s)' OK\n", $cmd);
+}
+
+#
+# mydie(@error_messages)
+#   Like exit 1, but with an additional useful printing
+#   of the call-stack trace.
+#
+sub mydie(@) {
+    # Add any additional cleanup steps necessary here
+
+    printf STDERR @_;
+    my $level = 0;
+    while (my ($file, $line, $func) = (caller(++$level))[1,2,3]) {
+        printf STDERR "%s--Called from %s:%s %s\n",
+                    '  ' x $level, $file, $line, $func;
+    }
+    exit 1;
+}
+
+sub init {
+    $0 =~ s{.*/}{};
+
+    usage() if (-t STDIN && @ARGV == 0);
+
+    # If 1st arg looks like an option, inject '--' first
+    # so getopts() doesn't barf on it.
+    if ($ARGV[0] =~ /^-\d+$/) {
+        unshift(@ARGV, '--');
+    }
+    getopts('vVd:t:s:D:T:S:');
+
+    $opt_v = 1 if $opt_V;
+    if ($opt_t || $opt_d || $opt_s) {
+        $ICS = ($opt_t || $opt_d || $opt_s);
+        v("$ICS='%s'\n", $ICS);
+    }
+    if ($opt_T || $opt_D || $opt_S) {
+        $OCS = ($opt_T || $opt_D || $opt_S);
+        v("$OCS='%s'\n", $OCS);
+    }
+    my ($last_file, $last_col);
+
+    my $fc_pat = sprintf('^([^%s]+)[%s](-?[0-9]+)$', $FCsep, $FCsep);
+
+    # v("fc_pat: %s\n", $fc_pat);
+
+    foreach my $arg (@ARGV) {
+        # v("arg: %s\n", $arg);
+        # -- filename
+        if (-f $arg) {
+            # v("filename: arg: %s\n", $arg);
+            push(@Files, $arg);
+            $last_file = $arg;
+        } elsif ($arg =~ /^-?\d+$/) {
+            # -- colno
+            push(@ColNos, $arg);
+            $last_col = $arg;
+        } elsif ($arg =~ /$fc_pat/o) {
+            # -- filename:colno
+            my ($file, $colno) = ($1, $2);
+            # v("%s =~ /%s/ -> (%s, %s)\n", $arg, $fc_pat, $file, $colno);
+            if (-f $file) {
+                push(@Files, $file);
+                push(@ColNos, $colno);
+            } else {
+                die "$0: arg: $arg, but $file: $!\n";
+            }
+        } else {
+            usage("$arg: no such file (or unsupported argument)");
+        }
+    }
+    # make the two lists (file, colno) the same length by repeating last
+    if (@Files > @ColNos) {
+        $last_col = 0 unless (defined $last_col);
+        while (@Files > @ColNos) {
+            push(@ColNos, $last_col);
+        }
+    } elsif (@ColNos > @Files) {
+        $last_file = '/dev/stdin' unless (defined $last_file);
+        while (@ColNos > @Files) {
+            push(@Files, $last_file);
+        }
+    }
+    v("end of init:\n\tfiles=(@Files)\n\tcolnos=(@ColNos)\n");
+}
+
+my @FDS = ();
+
+sub get_fields() {
+    my @fields = ();
+    my $col_idx = -1;
+    foreach my $fd (@FDS) {
+        $col_idx++;
+        next if (eof($fd));
+
+        my $line = <$fd>;
+        chomp($line);
+        my $colno = $ColNos[$col_idx];
+        my $f = (split($ICS, $line))[$colno];
+        $f = '' unless (defined $f);
+        push(@fields, $f);
+    }
+    @fields;
+}
+
+sub print_cols() {
+
+    for (my $i = 0; $i < @Files; $i++) {
+        open($FDS[$i], $Files[$i]) ||
+            die "$0: can't open: $Files[$i]: $!\n";
+    }
+
+    while (my @fields = get_fields()) {
+        print join($OCS, @fields), "\n";
+    }
+}
+
+
+# -- main
+init();
+print_cols();
+
