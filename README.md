@@ -130,7 +130,7 @@ $ cat example.csv
 
 Works correctly with the present trick:
 ```
-cuts -1 zz.csv
+$ cuts -1 zz.csv
 2
 2
 2
