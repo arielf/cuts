@@ -43,6 +43,7 @@ overriden using `-T <sep>` (or -S, or -D).
 ## A few examples
 ```
     cuts 0 file1 file2 file3      Extract 1st (0) column from the 3 files
+
     cuts file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
 
     cuts file1 file2 file3        Same as above (0 is default colno)
