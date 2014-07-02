@@ -18,7 +18,7 @@ In particular:
 - It generally requires too much typing for simple column extraction tasks
   and it doesn't support reasonable defaults, resulting in errors when arguments are missing, like:
 ```
-    $ cut -d, zz.csv
+    $ cut -d, example.csv
     cut: you must specify a list of bytes, characters, or fields
 ```
 - It doesn't support multi-file & multi-column mixes (e.g. 2nd col
@@ -193,16 +193,16 @@ the current default multi-match pattern `$ICS` which simply
 matching all of: multi-white-space, tabs, or (optionally space surrounded)
 commas.  Even an extreme case of a schizophrenic input like:
 ```
-$ cat example.csv
+$ cat schizo.csv
 0,1 ,  2
 0,1   ,2
 0,1   ,2
 a  b   c
 ```
 
-Works correctly, and as designed, with the present trick:
+Works correctly, and as designed, with the present smart column-separator trick:
 ```
-$ cuts -1 zz.csv
+$ cuts -1 schizo.csv
 2
 2
 2
