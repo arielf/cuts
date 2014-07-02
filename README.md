@@ -82,7 +82,7 @@ which works right out of the box, in any shell:
 ```
 
 
-Other utilities, like `awk` or perl give you more power at the expense
+Other utilities, like `awk` or `perl` give you more power at the expense
 of having to learn a much more complex language to do what you want.
 
 `cuts` is designed to give you the power you need in almost all cases,
