@@ -9,9 +9,12 @@
 #   - More friendly, less need to type prefix options (numbers imply columns)
 #   - Has sensible defaults for everything, less typing needed
 #
+# -- ariel faigon - 2014-06
+# -- released under the OSI approved artistic license - see LICENCE file
+#
 use strict;
 use Getopt::Std;
-use vars qw($opt_v $opt_V
+use vars qw($opt_v
             $opt_s $opt_d $opt_t
             $opt_S $opt_D $opt_T);
 
@@ -46,14 +49,14 @@ sub usage(@) {
         -v              verbose (mostly for debugging)
 
         Input column separator options (lowercase):
-        -d <sep>        Use <sep> (perl regexp) as column delimiter
-        -t <sep>        Alias for -d
-        -s <sep>        Another alias for -d
+          -d <sep>        Use <sep> (perl regexp) as column delimiter
+          -t <sep>        Alias for -d
+          -s <sep>        Another alias for -d
     
-        Output column separator options (uppercase of same):
-        -D <sep>
-        -T <sep>
-        -S <sep>
+        Output column separator options (mnemonic: uppercase of same):
+          -D <sep>
+          -T <sep>
+          -S <sep>
 
     Column_Specs:
         filename:colno  Extract colno from filename
@@ -69,7 +72,7 @@ sub usage(@) {
             Default colno is 0
 
     Examples:
-        $0 0 file1 file2 file3      Extract 1st (0) column from the 3 files
+        $0 0 file1 file2 file3      Extract & join 1st (0) column from the 3 files
 
         $0 file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
 
