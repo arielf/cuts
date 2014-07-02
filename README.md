@@ -1,27 +1,27 @@
 cuts
 ====
 
-***cuts*** is Unix `cut` (and `paste`) on steroids.
+***cuts*** is Unix/POSIX `cut` (and `paste`) on steroids.
 
-`cut` is a very useful Unix utility designed to extract columns from
-files.  Unfortunately, it is pretty limited in power.  In particular:
+`cut` is a very useful Unix (and POSIX standard) utility designed to
+extract columns from files.  Unfortunately, it is pretty limited in power.
+In particular:
 
-- It doesn't do automatic detection of the file input column separator
+- It doesn't automatically detect the file input column separator
 - It doesn't support mixed input separators (e.g. both CSV and TSV)
 - It doesn't support multi-char column separators, in particular,
   the most common case, of any white-space sequence
-- It doesn't support perl regexp separators
+- It doesn't support perl style regexp separators
 - It doesn't support negative (from end) column numbers
-- It is non-flexible when it comes to variable number of columns in
-  the input
+- It is non-flexible when it comes to variable number of columns in the input
 - It is unforgiving if you accidentally use `-t` (like `sort` does) for the separator/delimiter instead of `-d` (happens to me too often)
 - It generally requires too much typing for simple column extraction tasks
-  and it doesn't support reasonable defaults, resulting in things like:
+  and it doesn't support reasonable defaults, resulting in errors when arguments are missing, like:
 ```
     $ cut -d, zz.csv
     cut: you must specify a list of bytes, characters, or fields
 ```
-- It doesn't support multi-file + multi-column mixes (e.g. 2nd col
+- It doesn't support multi-file & multi-column mixes (e.g. 2nd col
   from file1 and 3rd from file2)
 
 Obviously with the power of the bash shell you can do stuff like:
@@ -29,11 +29,12 @@ Obviously with the power of the bash shell you can do stuff like:
     $ paste <(cut -d, -f1 file.csv) <(cut -d"\t" -f2 file.tsv)
 ```
 
-but that requires too much typing (3 commands, too much shell
-magic, while still not supporting regex-style separators.
+but that requires too much typing (3 commands & too much shell
+magic), while still not supporting regex-style separators and
+offsets from end.
 
-Compare this to the much simpler and more intuitive `cuts` version,
-which works from any shell:
+Compare the above to the much simpler, and more intuitive, `cuts` version,
+which works in any shell:
 ```
     $ cuts file.csv 0 file.tsv 1
 ```
@@ -43,12 +44,15 @@ column.
 
 Other utilities, like `awk` give you more power at the expense of
 having to learn a much more complex language to do what you want.
-`cuts` is designed to give you the power you need in most cases
+
+`cuts` is designed to give you the power you need in almost all cases,
 while always being able to stay on the command line and keeping
 the human inteface _as simple as possible_
 
 Arguments can be file-names, or column-numbers (negative offsets
 from the end are supported too) or a combo of the two `file:colno`
+
+`cuts` also supports `-` as a handy alias for `stdin`.
 
 
 ## Reasonable defaults for everything
@@ -61,30 +65,32 @@ file-name to be reused.
 
 An undefined column-number will default to the 1st column (0)
 
-An undefined file-name will default to `/dev/stdin`
+An undefined file-name will default to `/dev/stdin`so you can easily pipe
+any other command output into `cuts`.
 
 The input column separator is the most common case of any-sequence
 of white-space *or* a comma, optionally surrounded by white-space.
-As a result, in 90% of cases, there's no need to specify an input
-column separator.
+As a result, in the vast majority of use cases, there's no need to
+specify an input column separator.
 
 The output column separator which is tab by default, can be
-overriden using `-T <sep>` (or -S, or -D).
+overriden using `-T <sep>` (or -S, or -D).  This is chosen
+as a mnemonic: lowercase options are for input separators, while
+the respective upper-case options are for output separators.
 
 ## Require minimal typing from the user
 
 In addition to having reasonable defaults, `cuts` doesn't force you
 to type more than needed, or enforce an order of arguments on you.
 It tries to be as minimalist as possible in its requirements from the user.
-Compare:
+Compare one of the simplest and most straightforward examples of
+extracting 3 columns from a single file:
 
 ```
+# -- the traditional cut way:
 $ cut -d, -f 1,2,3 file.csv
-```
 
-with:
-
-```
+# -- the cuts way, shorter, sweeter:
 $ cuts file.csv 0 1 2
 ```
 
@@ -94,13 +100,14 @@ $ cuts file.csv 0 1 2
 One thing that `cuts` does is try and be completely tolerant
 and supportive to cases of missing data.  If you try to paste two columns,
 side-by-side, from two files but one of the files is shorter,
-`cuts` will oblige and output the empty field where it is missing
+`cuts` will oblige and won't output a field where it is missing
 from the shorter file, until it reaches EOF on the longer file.
 
 Similarly, requesting column 2 (3rd column) when there are only
 2 columns (0,1) in a line will result in an empty output for that
 field rather than resulting in a fatal error.  This is done by
-design and it conforms to the perl philosophy.
+design and it conforms to the perl philosophy of silently converting
+undefined values to empty ones.
 
 ## A few examples
 ```
