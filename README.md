@@ -1,7 +1,7 @@
 cuts
 ====
 
-***cuts***: Unix/POSIX `cut` (and `paste`) on ***s***teroids.
+***cuts***: Unix/POSIX `cut` (and `paste`) on (s)teroids.
 
 `cut` is a very useful Unix (and POSIX standard) utility designed to
 extract columns from files.  Unfortunately, it is pretty limited in power.
