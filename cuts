@@ -18,9 +18,9 @@ use vars qw($opt_v $opt_V
 # Alternative file:colno char separators
 my $FCsep = ':;,#';
 
-# Input column separator (smart)
+# Default input column separator (smart)
 my $ICS = '(?:\s*,\s*|\s+)';
-# Output column separator
+# Default output column separator
 my $OCS = "\t";
 
 # -- names of files to extract columns from, may repeat
@@ -39,21 +39,11 @@ sub v {
     }
 }
 
-sub V {
-    return unless $opt_V;
-    if (@_ == 1) {
-        print STDERR @_;
-    } else {
-        printf STDERR @_;
-    }
-}
-
 sub usage(@) {
     print STDERR @_, "\n" if @_;
     die "Usage: $0 [Options] [Column_Specs]...
     Options:
         -v              verbose
-        -V              more verbose
 
         Input column separator options (lowercase):
         -d <sep>        Use <sep> (perl regexp) as column delimiter
@@ -95,48 +85,19 @@ sub usage(@) {
 ";
 }
 
-#
-# run a subshell + a more informative stack-trace in case of error
-#
-sub subshell($) {
-    my $cmd = shift;
-    my $out = `($cmd) 2>&1`;
-    if ($? != 0) {
-        mydie("\n$0: '$cmd' FAILED:\n$out");
-    }
-    v("$0: '(%s)' OK\n", $cmd);
-}
 
-#
-# mydie(@error_messages)
-#   Like exit 1, but with an additional useful printing
-#   of the call-stack trace.
-#
-sub mydie(@) {
-    # Add any additional cleanup steps necessary here
-
-    printf STDERR @_;
-    my $level = 0;
-    while (my ($file, $line, $func) = (caller(++$level))[1,2,3]) {
-        printf STDERR "%s--Called from %s:%s %s\n",
-                    '  ' x $level, $file, $line, $func;
-    }
-    exit 1;
-}
-
-sub init {
+sub get_args {
     $0 =~ s{.*/}{};
 
     usage() if (-t STDIN && @ARGV == 0);
 
     # If 1st arg looks like an option, inject '--' first
     # so getopts() doesn't barf on it.
-    if ($ARGV[0] =~ /^-\d+$/) {
+    if ($ARGV[0] =~ /^-\d*$/) {
         unshift(@ARGV, '--');
     }
-    getopts('vVd:t:s:D:T:S:');
+    getopts('vd:t:s:D:T:S:');
 
-    $opt_v = 1 if $opt_V;
     if ($opt_t || $opt_d || $opt_s) {
         $ICS = ($opt_t || $opt_d || $opt_s);
         v("$ICS='%s'\n", $ICS);
@@ -154,18 +115,21 @@ sub init {
     foreach my $arg (@ARGV) {
         # v("arg: %s\n", $arg);
         # -- filename
-        if (-f $arg) {
-            # v("filename: arg: %s\n", $arg);
+        if (-f $arg || $arg eq '-') {
+            v("filename: arg='%s'\n", $arg);
+            $arg = '/dev/stdin' if ($arg eq '-');
             push(@Files, $arg);
             $last_file = $arg;
         } elsif ($arg =~ /^-?\d+$/) {
             # -- colno
+            v("colno: arg='%s'\n", $arg);
             push(@ColNos, $arg);
             $last_col = $arg;
         } elsif ($arg =~ /$fc_pat/o) {
             # -- filename:colno
             my ($file, $colno) = ($1, $2);
-            # v("%s =~ /%s/ -> (%s, %s)\n", $arg, $fc_pat, $file, $colno);
+            v("filename:colno: %s =~ /%s/ -> (%s, %s)\n",
+                               $arg, $fc_pat, $file, $colno);
             if (-f $file) {
                 push(@Files, $file);
                 push(@ColNos, $colno);
@@ -176,7 +140,7 @@ sub init {
             usage("$arg: no such file (or unsupported argument)");
         }
     }
-    # make the two lists (file, colno) the same length by repeating last
+    # make the two lists (@Files, @ColNos) same length by repeating last
     if (@Files > @ColNos) {
         $last_col = 0 unless (defined $last_col);
         while (@Files > @ColNos) {
@@ -188,7 +152,7 @@ sub init {
             push(@Files, $last_file);
         }
     }
-    v("end of init:\n\tfiles=(@Files)\n\tcolnos=(@ColNos)\n");
+    v("get_args finishing:\n\tfiles=(@Files)\n\tcolnos=(@ColNos)\n");
 }
 
 my @FDS = ();
@@ -211,7 +175,6 @@ sub get_fields() {
 }
 
 sub print_cols() {
-
     for (my $i = 0; $i < @Files; $i++) {
         open($FDS[$i], $Files[$i]) ||
             die "$0: can't open: $Files[$i]: $!\n";
@@ -224,6 +187,6 @@ sub print_cols() {
 
 
 # -- main
-init();
+get_args();
 print_cols();
 
