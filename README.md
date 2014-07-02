@@ -153,57 +153,59 @@ Usage: cuts [Options] [Column_Specs]...
 
 ## Thoughts & TODOs (contributions welcome)
 
-Right now there's no effort being made to make `cuts` fast. Although
-compared to the I/O overhead, there may be not much need for it.  If you
-have ideas on how to make the column extractions and joining more
-efficient, that would be cool.  In particular, if you extract
-multiple columns from the same file, the current implementation
-opens it mutiple times, just for the sake of siimplicity and
-generalization.  Although the buffer cache should ensure that
-physical IO is avoided, having this implemented more efficiently,
-would be nice.
+I made no effort to make `cuts` fast.  Although compared to the
+I/O overhead, there may be not much need for it.  If you have ideas
+on how to make the column extractions and joining more efficient,
+that would be welcome.  In particular, if you extract multiple columns
+from the same file, the current implementation opens it mutiple times,
+just for the sake of siimplicity and generalization.  Although the
+buffer cache should ensure that physical IO is avoided, having this
+implemented more efficiently, would be nice.
 
 Per file column input separators.  I haven't had the need so far so
-that took a back-seat in priority.  Obviously if you have both a CSV
-and a TSV this is needed, but the current default multi-match
-pattern `$ICS` already takes care of this most common case by simply
+that took a back-seat in priority.  The most common case of
+intermixing TSV and CSV files as inputs is working thanks to
+the current default multi-match pattern `$ICS` which simply
 matching all of: multi-white-space, tabs, or space surrounded commas.
-Even something like:
+Even an extreme case of a schizophrenic input like:
 ```
 $ cat example.csv
 0,1 ,  2
 0,1   ,2
 0,1   ,2
+a  b   c
 ```
 
-Works correctly with the present trick:
+Works correctly, as designed, with the present trick:
 ```
 $ cuts -1 zz.csv
 2
 2
 2
+c
 ```
 
-Implement `cut` rarely used options.  I haven't had the need for
+This is considered a blissful feature.
+
+Implement `cut` rarely used options?  I haven't had the need for
 them, and if I ever do, I can simply use `cut` itself, so I haven't
-even tried to implement fixed-width field support, byte-offsets,
-`--complement`, `--characters`.   The basic features that `cut`
-is missing were much more critical for me, so that what I focused on
-in `cuts`.
+even tried to implement stuff like fixed-width field support,
+byte-offsets, `--complement`, `--characters`.   The basic features
+that `cut` is missing were much more critical for me when writing `cuts`.
 
 Embed the doc in the perl executable, `perldoc` style.
 
-Why do I support the `filename:colno` syntax? you might ask.
+Why do I support the `filename:colno` syntax? you may ask.
 It seems redundant (`filename colno` would work just as well.)
-The main reason is that some time you may have files named `1`, `2` etc.
-which introduces an ambiguity: are these files or column numbers?
+The main reason is that sometimes you may have files named `1`, `2` etc.
+This introduces an ambiguity: are these files or column numbers?
 `cuts` solves this ambiguity by:
 
-    - Giving priority to files (it first checks arguments for file existence)
-    - In case you want to force `1` to a column number, even in the
-      presence of a file by the same name, you can use the
-      `file:colno` syntax.  And you may use `;`, `#`, or `,`
-      as the file/colno separator instead of `:` for greater control.
+- Giving priority to files (it first checks arguments for file existence)
+- In case you want to force `1` to a column number, even in the
+  presence of a file by the same name, you can use the `file:colno` syntax.
+- You may even use `;`, `#`, or `,` as the file/colno separator instead
+  of `:` for greater control.
 
 
 
