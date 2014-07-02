@@ -6,7 +6,7 @@ cuts
 `cut` is a very useful Unix (and POSIX standard) utility designed to
 extract columns from files.  Unfortunately, it is pretty limited in power.
 
-The following list demontrates what is missing in `cut` and why
+The following list demonstrates what is missing in `cut` and why
 I felt the need to write `cuts`:
 
 - `cut` doesn't automatically detect the file input column separator:
@@ -24,8 +24,13 @@ $ cuts 0 test.dat
 ```
 As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st column.
 
-- `cut` doesn't support mixed input separators (e.g. both CSV and TSV):
+- `cut` doesn't support mixed input separators (e.g. both CSV and TSV) and it doesn't do automatic side-by-side pasting:
 ```
+#
+# -- cut fails all the way on this simple example
+#    Not only there's no way to mix separators,
+#    cut doesn't do side-by-side pasting at all:
+#
 $ cut -d, -f2 test.csv test.tsv
 1
 1
@@ -34,16 +39,22 @@ $ cut -d, -f2 test.csv test.tsv
 0	1	2
 0	1	2
 
-# -- compare to cuts:
+#
+# -- compare to cuts (auto-detect separators, side-by-side printing):
+#
 $ cuts 1 test.csv test.tsv
 1	1
 1	1
 1	1
 ```
 - `cut` doesn't support multi-char column separators, in particular,
-  the most common case, of any white-space sequence
-- `cut` doesn't support perl style regexp separators
-- `cut` doesn't support negative (from end) column numbers
+  it can't deal with the most common case of any white-space sequence
+- `cut` doesn't support perl style regex separators, when your
+  separator is a bit more complex (say, any sequence of non-digits)
+  you're out-of-luck.
+- `cut` doesn't support negative (from end) column numbers which is
+  very useful when you have, say 257 fields (but you haven't counted
+  them, so you don't really know), and you're interested in the last 3.
 - `cut` is non-flexible when it comes to variable number of columns in the input
 - `cut` is unforgiving if you accidentally use `-t` (like `sort` does) for the separator/delimiter instead of `-d` (happens to me too often)
 - `cut` generally requires too much typing for simple column extraction tasks
@@ -55,7 +66,7 @@ $ cuts 1 test.csv test.tsv
 - `cut` doesn't support multi-file & multi-column mixes (e.g. 2nd col
   from file1 and 3rd from file2)
 
-Obviously with the power of the bash shell you can do stuff like:
+Obviously with the power of the `bash` shell you can do stuff like:
 ```
     $ paste <(cut -d, -f1 file.csv) <(cut -d"\t" -f2 file.tsv)
 ```
@@ -65,7 +76,7 @@ magic), while still not supporting regex-style separators and
 offsets from end.
 
 Compare the above to the much simpler, and more intuitive, `cuts` version,
-which works in any shell:
+which works right out of the box, in any shell:
 ```
     $ cuts file.csv 0 file.tsv 1
 ```
@@ -76,7 +87,7 @@ of having to learn a much more complex language to do what you want.
 
 `cuts` is designed to give you the power you need in almost all cases,
 while always being able to stay on the command line and keeping
-the human inteface _as simple and minimalist as possible_
+the human interface _as simple and minimalist as possible_
 
 Arguments can be file-names, or column-numbers (negative offsets
 from the end are supported too) or a combo of the two `file:colno`
