@@ -35,8 +35,11 @@ magic, while still not supporting regex-style separators.
 Compare this to the much simpler and more intuitive `cuts` version,
 which works from any shell:
 ```
-    $ cuts file.csv 1 file.tsv 2
+    $ cuts file.csv 0 file.tsv 1
 ```
+
+As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st
+column.
 
 Other utilities, like `awk` give you more power at the expense of
 having to learn a much more complex language to do what you want.
@@ -58,7 +61,7 @@ file-name to be reused.
 
 An undefined column-number will default to the 1st column (0)
 
-An undefined file-name will default to /dev/stdin
+An undefined file-name will default to `/dev/stdin`
 
 The input column separator is the most common case of any-sequence
 of white-space *or* a comma, optionally surrounded by white-space.
