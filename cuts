@@ -1,7 +1,10 @@
 #!/usr/bin/perl -w
 # vim: ts=4 sw=4 expandtab
 #
-# This is somewhat similar to 'cut' but more powerful: 
+# This is somewhat similar to the traditional Unix/POSIX 'cut' utility,
+# but in a humble effort to blunt "the Unix Haters Handbook," it is
+# made more powerful, and actually useful:
+#
 #   - Supports automatic determination of input-column separator
 #   - Supports regexps for input-column separator
 #   - Supports negative (from end) column numbers (-1 is last column)
@@ -58,10 +61,15 @@ sub usage(@) {
           -T <sep>
           -S <sep>
 
+    In rare cases of ambiguity betwee cuts options and arguments
+    you may add -- to separate between the two groups.  In most common
+    cases this isn't needed.
+
     Column_Specs:
         filename:colno  Extract colno from filename
         filename        Use filename to extract columns from
         colno           Use column colno to extract columns
+        -               An alias for stdin
 
         If there's an excess of colno args, will duplicate the last
         file arg.  If there's an excess of file args, will duplicate
