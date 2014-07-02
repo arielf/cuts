@@ -183,8 +183,8 @@ Per file column input separators.  I haven't had the need so far so
 that took a back-seat in priority.  The most common case of
 intermixing TSV and CSV files as inputs is working thanks to
 the current default multi-match pattern `$ICS` which simply
-matching all of: multi-white-space, tabs, or space surrounded commas.
-Even an extreme case of a schizophrenic input like:
+matching all of: multi-white-space, tabs, or (optionally space surrounded)
+commas.  Even an extreme case of a schizophrenic input like:
 ```
 $ cat example.csv
 0,1 ,  2
@@ -193,7 +193,7 @@ $ cat example.csv
 a  b   c
 ```
 
-Works correctly, as designed, with the present trick:
+Works correctly, and as designed, with the present trick:
 ```
 $ cuts -1 zz.csv
 2
@@ -213,9 +213,9 @@ that `cut` is missing were much more critical for me when writing `cuts`.
 Embed the doc in the perl executable, `perldoc` style.
 
 Why do I support the `filename:colno` syntax? you may ask.
-It seems redundant (`filename colno` would work just as well.)
-The main reason is that sometimes you may have files named `1`, `2` etc.
-This introduces an ambiguity: are these files or column numbers?
+It seems redundant (since `filename colno` works just as well.)
+The reason is that sometimes you may have files named `1`, `2` etc.
+This introduces an ambiguity: are these arguments files or column numbers?
 `cuts` solves this ambiguity by:
 
 - Giving priority to files (it first checks arguments for file existence)
@@ -223,6 +223,5 @@ This introduces an ambiguity: are these files or column numbers?
   presence of a file by the same name, you can use the `file:colno` syntax.
 - You may even use `;`, `#`, or `,` as the `file:colno` separator instead
   of `:` for greater control.
-
 
 
