@@ -11,13 +11,13 @@ I felt the need to write `cuts`:
 
 - `cut` doesn't automatically detect the file input column separator:
 ```
-$ cut -f1 test.csv
+$ cut -f1 test.dat
 0,1,2
 0,1,2
 0,1,2
 
 # -- compare to cuts:
-$ cuts 0 test.csv
+$ cuts 0 test.dat
 0
 0
 0
