@@ -8,7 +8,34 @@ extract columns from files.  Unfortunately, it is pretty limited in power.
 In particular:
 
 - It doesn't automatically detect the file input column separator
+```
+$ cut -f2 test.csv
+0,1,2
+0,1,2
+0,1,2
+
+# -- vs:
+$ cuts 1 test.csv
+1
+1
+1
+```
 - It doesn't support mixed input separators (e.g. both CSV and TSV)
+```
+$ cut -d, -f2 test.csv test.tsv
+1
+1
+1
+0	1	2
+0	1	2
+0	1	2
+
+# -- vs:
+$ cuts 1 test.csv test.tsv
+1	1
+1	1
+1	1
+```
 - It doesn't support multi-char column separators, in particular,
   the most common case, of any white-space sequence
 - It doesn't support perl style regexp separators
@@ -42,12 +69,12 @@ which works in any shell:
 As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st
 column.
 
-Other utilities, like `awk` give you more power at the expense of
-having to learn a much more complex language to do what you want.
+Other utilities, like `awk` or perl give you more power at the expense
+of having to learn a much more complex language to do what you want.
 
 `cuts` is designed to give you the power you need in almost all cases,
 while always being able to stay on the command line and keeping
-the human inteface _as simple as possible_
+the human inteface _as simple and minimalist as possible_
 
 Arguments can be file-names, or column-numbers (negative offsets
 from the end are supported too) or a combo of the two `file:colno`
@@ -90,7 +117,7 @@ extracting 3 columns from a single file:
 # -- the traditional cut way:
 $ cut -d, -f 1,2,3 file.csv
 
-# -- the cuts way, shorter, sweeter:
+# -- the cuts way: shorter & sweeter:
 $ cuts file.csv 0 1 2
 ```
 
@@ -200,7 +227,8 @@ $ cat schizo.csv
 a  b   c
 ```
 
-Works correctly, and as designed, with the present smart column-separator trick:
+Works correctly, and as designed/expected, with the present smart
+column-separator trick:
 ```
 $ cuts -1 schizo.csv
 2
