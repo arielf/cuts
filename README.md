@@ -4,13 +4,15 @@ cuts
 ***cuts*** is Unix `cut` (and `paste`) on steroids.
 
 `cut` is a very useful Unix utility designed to extract columns from
-files.  Unfortunately, it is very limited in power.  In particular:
+files.  Unfortunately, it is pretty limited in power.  In particular:
 
 - It doesn't do automatic detection of the file column separator
-- It doesn't support multi-char column separators, in particular
-  (most commonly missed) "any white-space sequence"
+- It doesn't support multi-char column separators, in particular,
+  the most common case, of any white-space sequence
 - It doesn't support perl regexp separators
 - It doesn't support negative (from end) column numbers
+- It is non-flexible when it comes to variable number of columns in
+  the input
 - It fails if you use -t (like `sort` does) for the separator/delimiter instead of -d
 - It generally requires too much typing for simple column extraction tasks
   and it doesn't support reasonable defaults, resulting in things like:
@@ -30,6 +32,7 @@ the human inteface _as simple as possible_
 Arguments can be file-names, or column-numbers (negative offsets
 from the end are supported too) or a combo of the two `file:colno`
 
+
 ## Reasonable defaults for everything
 
 A file-name without a column-number will cause the last
@@ -42,8 +45,31 @@ An undefined column-number will default to the 1st column (0)
 
 An undefined file-name will default to /dev/stdin
 
+The input column separator is the most common case of any-sequence
+of white-space *or* a comma, optionally surrounded by white-space.
+As a result, in 90% of cases, there's no need to specify an input
+column separator.
+
 The output column separator which is tab by default, can be
 overriden using `-T <sep>` (or -S, or -D).
+
+## Require minimal typing from the user
+
+In addition to having reasonable defaults, `cuts` doesn't force you
+to type more than needed, or enforce an order of arguments on you.
+It tries to be as minimalist as possible in its requirements from the user.
+Compare:
+
+```
+$ cut -d, -f 1,2,3 file.csv
+```
+
+with:
+
+```
+$ cuts file.csv 0 1 2
+```
+
 
 ## Input flexibility and tolerance to missing data
 
