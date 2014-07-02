@@ -127,8 +127,7 @@ Simply call `cuts` without any argument to get a full usage message:
 $ cuts
 Usage: cuts [Options] [Column_Specs]...
     Options:
-        -v              verbose
-        -V              more verbose
+        -v              verbose (mostly for debugging)
 
         Input column separator options (lowercase):
         -d <sep>        Use <sep> (perl regexp) as column delimiter

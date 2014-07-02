@@ -43,7 +43,7 @@ sub usage(@) {
     print STDERR @_, "\n" if @_;
     die "Usage: $0 [Options] [Column_Specs]...
     Options:
-        -v              verbose
+        -v              verbose (mostly for debugging)
 
         Input column separator options (lowercase):
         -d <sep>        Use <sep> (perl regexp) as column delimiter
