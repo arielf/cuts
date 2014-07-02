@@ -11,16 +11,16 @@ I felt the need to write `cuts`:
 
 - `cut` doesn't automatically detect the file input column separator:
 ```
-$ cut -f2 test.csv
+$ cut -f1 test.csv
 0,1,2
 0,1,2
 0,1,2
 
 # -- compare to cuts:
-$ cuts 1 test.csv
-1
-1
-1
+$ cuts 0 test.csv
+0
+0
+0
 ```
 As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st column.
 
