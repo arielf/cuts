@@ -1,26 +1,30 @@
 cuts
 ====
 
-***cuts*** is Unix/POSIX `cut` (and `paste`) on steroids.
+***cuts***: Unix/POSIX `cut` (and `paste`) on ***s***teroids.
 
 `cut` is a very useful Unix (and POSIX standard) utility designed to
 extract columns from files.  Unfortunately, it is pretty limited in power.
-In particular:
 
-- It doesn't automatically detect the file input column separator
+The following list demontrates what is missing in `cut` and why
+I felt the need to write `cuts`:
+
+- `cut` doesn't automatically detect the file input column separator:
 ```
 $ cut -f2 test.csv
 0,1,2
 0,1,2
 0,1,2
 
-# -- vs:
+# -- compare to cuts:
 $ cuts 1 test.csv
 1
 1
 1
 ```
-- It doesn't support mixed input separators (e.g. both CSV and TSV)
+As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st column.
+
+- `cut` doesn't support mixed input separators (e.g. both CSV and TSV):
 ```
 $ cut -d, -f2 test.csv test.tsv
 1
@@ -30,25 +34,25 @@ $ cut -d, -f2 test.csv test.tsv
 0	1	2
 0	1	2
 
-# -- vs:
+# -- compare to cuts:
 $ cuts 1 test.csv test.tsv
 1	1
 1	1
 1	1
 ```
-- It doesn't support multi-char column separators, in particular,
+- `cut` doesn't support multi-char column separators, in particular,
   the most common case, of any white-space sequence
-- It doesn't support perl style regexp separators
-- It doesn't support negative (from end) column numbers
-- It is non-flexible when it comes to variable number of columns in the input
-- It is unforgiving if you accidentally use `-t` (like `sort` does) for the separator/delimiter instead of `-d` (happens to me too often)
-- It generally requires too much typing for simple column extraction tasks
+- `cut` doesn't support perl style regexp separators
+- `cut` doesn't support negative (from end) column numbers
+- `cut` is non-flexible when it comes to variable number of columns in the input
+- `cut` is unforgiving if you accidentally use `-t` (like `sort` does) for the separator/delimiter instead of `-d` (happens to me too often)
+- `cut` generally requires too much typing for simple column extraction tasks
   and it doesn't support reasonable defaults, resulting in errors when arguments are missing, like:
 ```
     $ cut -d, example.csv
     cut: you must specify a list of bytes, characters, or fields
 ```
-- It doesn't support multi-file & multi-column mixes (e.g. 2nd col
+- `cut` doesn't support multi-file & multi-column mixes (e.g. 2nd col
   from file1 and 3rd from file2)
 
 Obviously with the power of the bash shell you can do stuff like:
@@ -66,8 +70,6 @@ which works in any shell:
     $ cuts file.csv 0 file.tsv 1
 ```
 
-As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st
-column.
 
 Other utilities, like `awk` or perl give you more power at the expense
 of having to learn a much more complex language to do what you want.
