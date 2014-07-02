@@ -6,14 +6,15 @@ cuts
 `cut` is a very useful Unix utility designed to extract columns from
 files.  Unfortunately, it is pretty limited in power.  In particular:
 
-- It doesn't do automatic detection of the file column separator
+- It doesn't do automatic detection of the file input column separator
+- It doesn't support mixed input separators (e.g. both CSV and TSV)
 - It doesn't support multi-char column separators, in particular,
   the most common case, of any white-space sequence
 - It doesn't support perl regexp separators
 - It doesn't support negative (from end) column numbers
 - It is non-flexible when it comes to variable number of columns in
   the input
-- It fails if you use -t (like `sort` does) for the separator/delimiter instead of -d
+- It is unforgiving if you accidentally use `-t` (like `sort` does) for the separator/delimiter instead of `-d` (happens to me too often)
 - It generally requires too much typing for simple column extraction tasks
   and it doesn't support reasonable defaults, resulting in things like:
 ```
@@ -22,6 +23,20 @@ files.  Unfortunately, it is pretty limited in power.  In particular:
 ```
 - It doesn't support multi-file + multi-column mixes (e.g. 2nd col
   from file1 and 3rd from file2)
+
+Obviously with the power of the bash shell you can do stuff like:
+```
+    $ paste <(cut -d, -f1 file.csv) <(cut -d"\t" -f2 file.tsv)
+```
+
+but that requires too much typing (3 commands, too much shell
+magic, while still not supporting regex-style separators.
+
+Compare this to the much simpler and more intuitive `cuts` version,
+which works from any shell:
+```
+    $ cuts file.csv 1 file.tsv 2
+```
 
 Other utilities, like `awk` give you more power at the expense of
 having to learn a much more complex language to do what you want.
@@ -204,7 +219,7 @@ This introduces an ambiguity: are these files or column numbers?
 - Giving priority to files (it first checks arguments for file existence)
 - In case you want to force `1` to a column number, even in the
   presence of a file by the same name, you can use the `file:colno` syntax.
-- You may even use `;`, `#`, or `,` as the file/colno separator instead
+- You may even use `;`, `#`, or `,` as the `file:colno` separator instead
   of `:` for greater control.
 
 
