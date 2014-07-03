@@ -55,6 +55,24 @@ $ cuts 1 test.csv test.tsv
 - `cut` doesn't support negative (from end) column numbers which is
   very useful when you have, say 257 fields (but you haven't counted
   them, so you don't really know), and you're interested in the last 3.
+- `cut` doesn't support changing order of columns; it ignores the
+  order requested by the user and force-sorts the fields from low to high:
+
+```
+$ cut -f3,2,1 file.tsv
+0	1	2
+0	1	2
+0	1	2
+
+#
+# -- compare to cuts, which does what you want:
+#
+cuts 2 1 0 file.tsv 
+2	1	0
+2	1	0
+2	1	0
+```
+
 - `cut` is non-flexible when it comes to variable number of columns in the input
 - `cut` is unforgiving if you accidentally use `-t` (like `sort` does) for the separator/delimiter instead of `-d` (happens to me too often)
 - `cut` generally requires too much typing for simple column extraction tasks
