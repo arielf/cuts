@@ -9,7 +9,7 @@ extract columns from files.  Unfortunately, it is pretty limited in power.
 The following list demonstrates what is missing in `cut` and why
 I felt the need to write `cuts`:
 
-- `cut` doesn't automatically detect the file input column separator:
+- `cut` doesn't automatically detect the file input column delimiter:
 ```
 $ cut -f1 test.dat
 0,1,2
@@ -24,11 +24,12 @@ $ cuts 0 test.dat
 ```
 As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st column.
 
-- `cut` doesn't support mixed input separators (e.g. both CSV and TSV) and it doesn't do automatic side-by-side pasting:
+- `cut` doesn't support mixed input delimiters (e.g. both CSV and TSV)
+   and it doesn't perform the commonly useful automatic side-by-side pasting:
 ```
 #
 # -- cut fails all the way on this simple example
-#    Not only there's no way to mix separators,
+#    Not only there's no way to mix delimiters,
 #    cut doesn't do side-by-side pasting at all:
 #
 $ cut -d, -f2 test.csv test.tsv
@@ -40,23 +41,25 @@ $ cut -d, -f2 test.csv test.tsv
 0	1	2
 
 #
-# -- compare to cuts (auto-detect separators, side-by-side printing):
+# -- compare to cuts (auto-detect mixed delimiters & side-by-side printing):
 #
 $ cuts 1 test.csv test.tsv
 1	1
 1	1
 1	1
 ```
-- `cut` doesn't support multi-char column separators, in particular,
+- `cut` doesn't support multi-char column delimiters, in particular,
   it can't deal with the most common case of any white-space sequence
-- `cut` doesn't support perl style regex separators, when your
-  separator is a bit more complex (say, any sequence of non-digits)
+- `cut` doesn't support perl style regex delimiters, when your
+  delimiter is a bit more complex (say, any sequence of non-digits)
   you're out-of-luck.
 - `cut` doesn't support negative (from end) column numbers which is
   very useful when you have, say 257 fields (but you haven't counted
-  them, so you don't really know), and you're interested in the last 3.
+  them, so you don't really know), and you're interested in the last field,
+  or the one before the last etc.
 - `cut` doesn't support changing order of columns; it ignores the
-  order requested by the user and force-sorts the fields from low to high:
+  order requested by the user and always force-prints the fields
+  in order from low to high:
 
 ```
 $ cut -f3,2,1 file.tsv
@@ -65,7 +68,7 @@ $ cut -f3,2,1 file.tsv
 0	1	2
 
 #
-# -- compare to cuts, which does what you want:
+# -- compare to cuts, which does exactly what you want:
 #
 cuts 2 1 0 file.tsv 
 2	1	0
@@ -74,12 +77,20 @@ cuts 2 1 0 file.tsv
 ```
 
 - `cut` is non-flexible when it comes to variable number of columns in the input
-- `cut` is unforgiving if you accidentally use `-t` (like `sort` does) for the separator/delimiter instead of `-d` (happens to me too often)
-- `cut` generally requires too much typing for simple column extraction tasks
-  and it doesn't support reasonable defaults, resulting in errors when arguments are missing, like:
+- `cut` is unforgiving if you accidentally use `-t` (like `sort` does) for the delimiter/delimiter instead of `-d` (happens to me too often)
+- `cut` requires too much typing for simple column extraction tasks
+  because it doesn't allow for reasonable defaults. It'll result
+  in errors when arguments are missing:
 ```
     $ cut -d, example.csv
     cut: you must specify a list of bytes, characters, or fields
+
+    # -- compare to cuts, where default is 1st field &
+    #    field-delimiters are auto-detected for most common cases:
+    $ cuts example.csv
+    0
+    0
+    0
 ```
 - `cut` doesn't support multi-file & multi-column mixes (e.g. 2nd col
   from file1 and 3rd from file2)
@@ -89,9 +100,8 @@ Obviously with the power of the `bash` shell you can do stuff like:
     $ paste <(cut -d, -f1 file.csv) <(cut -d"\t" -f2 file.tsv)
 ```
 
-but that requires too much typing (3 commands & too much shell
-magic), while still not supporting regex-style separators and
-offsets from end.
+but that requires too much typing (3 commands & shell-magic),
+while still not supporting regex-style delimiters and offsets from end.
 
 Compare the above to the much simpler, and more intuitive, `cuts` version,
 which works right out of the box, in any shell:
@@ -107,34 +117,44 @@ of having to learn a much more complex language to do what you want.
 while always being able to stay on the command line and keeping
 the human interface _as simple and minimalist as possible_
 
-Arguments can be file-names, or column-numbers (negative offsets
-from the end are supported too) or a combo of the two `file:colno`
+`cuts` arguments can be:
+
+    - file-names
+    - column-numbers (negative offsets from the end are supported too) or
+    - any combo of the two using: `file:colno`
 
 `cuts` also supports `-` as a handy alias for `stdin`.
 
 
 ## Reasonable defaults for everything
 
-A file-name without a column-number will cause the last
+A file-name without a column-number will cause the *last* specified
 column-number to be reused.
 
-A column-number without a file-name will cause the last
+A column-number without a file-name will cause the *last* specified
 file-name to be reused.
 
-An undefined column-number will default to the 1st column (0)
+An unspecified column-number will default to the 1st column (0)
 
-An undefined file-name will default to `/dev/stdin`so you can easily pipe
+An unspecified file-name will default to `/dev/stdin`so you can easily pipe
 any other command output into `cuts`.
 
-The input column separator is the most common case of any-sequence
-of white-space *or* a comma, optionally surrounded by white-space.
-As a result, in the vast majority of use cases, there's no need to
-specify an input column separator.
+By default, the input column delimiter is the most common case of
+any-sequence of white-space *or* a comma, optionally surrounded by
+white-space. As a result, in the vast majority of use cases, there's
+no need to specify an input column delimiter at all.  If you have
+a more complex case you may overide `cuts` default
+input-field-delimiter:
 
-The output column separator which is tab by default, can be
+```
+    $ cuts -d '<some-perl-regex>' ...
+    # see `man perlre` for documentation on perl regular expressions
+```
+
+Similarly, the output column delimiter which is tab by default, can be
 overriden using `-T <sep>` (or -S, or -D).  This is chosen
-as a mnemonic: lowercase options are for input separators, while
-the respective upper-case options are for output separators.
+as a mnemonic: lowercase options are for input delimiters, while
+the respective upper-case options are for output delimiters.
 
 ## Require minimal typing from the user
 
@@ -194,12 +214,12 @@ Usage: cuts [Options] [Column_Specs]...
     Options:
         -v              verbose (mostly for debugging)
 
-        Input column separator options (lowercase):
+        Input column delimiter options (lowercase):
         -d <sep>        Use <sep> (perl regexp) as column delimiter
         -t <sep>        Alias for -d
         -s <sep>        Another alias for -d
     
-        Output column separator options (uppercase of same):
+        Output column delimiter options (uppercase of same):
         -D <sep>
         -T <sep>
         -S <sep>
@@ -244,7 +264,7 @@ just for the sake of siimplicity and generalization.  Although the
 buffer cache should ensure that physical IO is avoided, having this
 implemented more efficiently, would be nice.
 
-Per file column input separators.  I haven't had the need so far so
+Per file column input delimiters.  I haven't had the need so far so
 that took a back-seat in priority.  The most common case of
 intermixing TSV and CSV files as inputs is working thanks to
 the current default multi-match pattern `$ICS` which simply
@@ -259,7 +279,7 @@ a  b   c
 ```
 
 Works correctly, and as designed/expected, with the present smart
-column-separator trick:
+column-delimiter trick:
 ```
 $ cuts -1 schizo.csv
 2
