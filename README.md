@@ -320,4 +320,14 @@ This introduces an ambiguity: are these arguments files or column numbers?
   `file:colno` separator instead of `:` for somewhat greater control.
 
 
+Resolving option ambiguity: negative column offsets and `-` for
+`stdin` don't play well with `getopts()`.  `cuts` solves this by auto
+injecting `--` (end of options marker) into `@ARGV` before calling
+getopts when needed.  This is so the user never has to worry about
+the ambiguity.  For example, (`-v` is `cuts` own debugging/verbose
+option, while `-3` is a column index specifier) this works as expected:
+
+```
+    $ cuts -v -3 file.txt
+
 
