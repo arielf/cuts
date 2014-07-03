@@ -1,0 +1,385 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Cuts</title>
+  <meta name="description" content="Unix &#39;cut&#39; (and &#39;paste&#39;) on steroids: more flexible select columns from files">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Cuts</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">Unix &#39;cut&#39; (and &#39;paste&#39;) on steroids: more flexible select columns from files</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/arielf/cuts/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/arielf/cuts/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/arielf/cuts" class="code">View Cuts on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <h1>
+<a name="cuts" class="anchor" href="#cuts"><span class="octicon octicon-link"></span></a>cuts</h1>
+
+<p><strong><em>cuts</em></strong>: Unix/POSIX <code>cut</code> (and <code>paste</code>) on (s)teroids.</p>
+
+<p><code>cut</code> is a very useful Unix (and POSIX standard) utility designed to
+extract columns from files.  Unfortunately, it is pretty limited in power.</p>
+
+<p>The following list demonstrates what is missing in <code>cut</code> and why
+I felt the need to write <code>cuts</code>:</p>
+
+<ul>
+<li>
+<code>cut</code> doesn't automatically detect the file input column delimiter:</li>
+</ul><pre><code>$ cut -f1 test.dat
+0,1,2
+0,1,2
+0,1,2
+
+# -- compare to cuts:
+$ cuts 0 test.dat
+0
+0
+0
+</code></pre>
+
+<p>As you can see, I prefer zero-based indexing.  <code>cuts</code> uses 0 for 1st column.</p>
+
+<ul>
+<li>
+<code>cut</code> doesn't support mixed input delimiters (e.g. both CSV and TSV)
+and it doesn't perform the commonly useful automatic side-by-side pasting:</li>
+</ul><pre><code>#
+# -- cut fails all the way on this simple example
+#    Not only there's no way to mix delimiters,
+#    cut doesn't do side-by-side pasting at all:
+#
+$ cut -d, -f2 test.csv test.tsv
+1
+1
+1
+0   1   2
+0   1   2
+0   1   2
+
+#
+# -- compare to cuts (auto-detect mixed delimiters &amp; side-by-side printing):
+#
+$ cuts 1 test.csv test.tsv
+1   1
+1   1
+1   1
+</code></pre>
+
+<ul>
+<li>
+<code>cut</code> doesn't support multi-char column delimiters, in particular,
+it can't deal with the most common case of any white-space sequence</li>
+<li>
+<code>cut</code> doesn't support perl style regex delimiters, when your
+delimiter is a bit more complex (say, any sequence of non-digits)
+you're out-of-luck.</li>
+<li>
+<code>cut</code> doesn't support negative (from end) column numbers which is
+very useful when you have, say 257 fields (but you haven't counted
+them, so you don't really know), and you're interested in the last field,
+or the one before the last etc.</li>
+<li>
+<code>cut</code> doesn't support changing order of columns; it ignores the
+order requested by the user and always force-prints the fields
+in order from low to high:</li>
+</ul><pre><code>$ cut -f3,2,1 file.tsv
+0   1   2
+0   1   2
+0   1   2
+
+#
+# -- compare to cuts, which does exactly what you want:
+#
+cuts 2 1 0 file.tsv 
+2   1   0
+2   1   0
+2   1   0
+</code></pre>
+
+<ul>
+<li>
+<code>cut</code> is non-flexible when it comes to variable number of columns in the input</li>
+<li>
+<code>cut</code> is unforgiving if you accidentally use <code>-t</code> (like <code>sort</code> does) for the delimiter/delimiter instead of <code>-d</code> (happens to me too often)</li>
+<li>
+<code>cut</code> requires too much typing for simple column extraction tasks
+because it doesn't allow for reasonable defaults. It'll result
+in errors when arguments are missing:</li>
+</ul><pre><code>    $ cut -d, example.csv
+    cut: you must specify a list of bytes, characters, or fields
+
+    # -- compare to cuts, where default is 1st field &amp;
+    #    field-delimiters are auto-detected for most common cases:
+    $ cuts example.csv
+    0
+    0
+    0
+</code></pre>
+
+<ul>
+<li>
+<code>cut</code> doesn't support multi-file &amp; multi-column mixes (e.g. 2nd col
+from file1 and 3rd from file2)</li>
+</ul><p>Obviously with the power of the <code>bash</code> shell you can do stuff like:</p>
+
+<pre><code>    $ paste &lt;(cut -d, -f1 file.csv) &lt;(cut -d"\t" -f2 file.tsv)
+</code></pre>
+
+<p>but that requires too much typing (3 commands &amp; shell-magic),
+while still not supporting regex-style delimiters and offsets from end.</p>
+
+<p>Compare the above to the much simpler, and more intuitive, <code>cuts</code> version,
+which works right out of the box, in any shell:</p>
+
+<pre><code>    $ cuts file.csv 0 file.tsv 1
+</code></pre>
+
+<p>Other utilities, like <code>awk</code> or <code>perl</code> give you more power at the expense
+of having to learn a much more complex language to do what you want.</p>
+
+<p><code>cuts</code> is designed to give you the power you need in almost all cases,
+while always being able to stay on the command line and keeping
+the human interface <em>as simple and minimalist as possible</em></p>
+
+<p><code>cuts</code> arguments can be:</p>
+
+<pre><code>- file-names
+- column-numbers (negative offsets from the end are supported too) or
+- any combo of the two using: `file:colno`
+</code></pre>
+
+<p><code>cuts</code> also supports <code>-</code> as a handy alias for <code>stdin</code>.</p>
+
+<h2>
+<a name="reasonable-defaults-for-everything" class="anchor" href="#reasonable-defaults-for-everything"><span class="octicon octicon-link"></span></a>Reasonable defaults for everything</h2>
+
+<p>A file-name without a column-number will cause the <em>last</em> specified
+column-number to be reused.</p>
+
+<p>A column-number without a file-name will cause the <em>last</em> specified
+file-name to be reused.</p>
+
+<p>An unspecified column-number will default to the 1st column (0)</p>
+
+<p>An unspecified file-name will default to <code>/dev/stdin</code>so you can easily pipe
+any other command output into <code>cuts</code>.</p>
+
+<p>By default, the input column delimiter is the most common case of
+any-sequence of white-space <em>or</em> a comma, optionally surrounded by
+white-space. As a result, in the vast majority of use cases, there's
+no need to specify an input column delimiter at all.  If you have
+a more complex case you may overide <code>cuts</code> default
+input-field-delimiter:</p>
+
+<pre><code>    $ cuts -d '&lt;some-perl-regex&gt;' ...
+    # see `man perlre` for documentation on perl regular expressions
+</code></pre>
+
+<p>Similarly, the output column delimiter which is tab by default, can be
+overriden using <code>-T &lt;sep&gt;</code> (or -S, or -D).  This is chosen
+as a mnemonic: lowercase options are for input delimiters, while
+the respective upper-case options are for output delimiters.</p>
+
+<h2>
+<a name="require-minimal-typing-from-the-user" class="anchor" href="#require-minimal-typing-from-the-user"><span class="octicon octicon-link"></span></a>Require minimal typing from the user</h2>
+
+<p>In addition to having reasonable defaults, <code>cuts</code> doesn't force you
+to type more than needed, or enforce an order of arguments on you.
+It tries to be as minimalist as possible in its requirements from the user.
+Compare one of the simplest and most straightforward examples of
+extracting 3 columns from a single file:</p>
+
+<pre><code># -- the traditional cut way:
+$ cut -d, -f 1,2,3 file.csv
+
+# -- the cuts way: shorter &amp; sweeter:
+$ cuts file.csv 0 1 2
+</code></pre>
+
+<h2>
+<a name="input-flexibility-and-tolerance-to-missing-data" class="anchor" href="#input-flexibility-and-tolerance-to-missing-data"><span class="octicon octicon-link"></span></a>Input flexibility and tolerance to missing data</h2>
+
+<p>One thing that <code>cuts</code> does is try and be completely tolerant
+and supportive to cases of missing data.  If you try to paste two columns,
+side-by-side, from two files but one of the files is shorter,
+<code>cuts</code> will oblige and won't output a field where it is missing
+from the shorter file, until it reaches EOF on the longer file.</p>
+
+<p>Similarly, requesting column 2 (3rd column) when there are only
+2 columns (0,1) in a line will result in an empty output for that
+field rather than resulting in a fatal error.  This is done by
+design and it conforms to the perl philosophy of silently converting
+undefined values to empty ones.</p>
+
+<h2>
+<a name="a-few-examples" class="anchor" href="#a-few-examples"><span class="octicon octicon-link"></span></a>A few examples</h2>
+
+<pre><code>    cuts 0 file1 file2 file3      Extract 1st (0) column from the 3 files
+
+    cuts file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
+
+    cuts file1 file2 file3        Same as above (0 is default colno)
+
+    cuts -1 f1 f2 f3              Extract last column from each of f1, f2, and f3
+
+    cuts file1:0 file2:-1         Extract 1st (0) column from file1 and last column from file2
+
+    cuts 0 2 3                    Extract columns (0,2,3) from /dev/stdin
+
+    cuts f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
+</code></pre>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage:</h2>
+
+<p>Simply call <code>cuts</code> without any argument to get a full usage message:</p>
+
+<pre><code>$ cuts
+Usage: cuts [Options] [Column_Specs]...
+    Options:
+        -v              verbose (mostly for debugging)
+
+        Input column delimiter options (lowercase):
+        -d &lt;sep&gt;        Use &lt;sep&gt; (perl regexp) as column delimiter
+        -t &lt;sep&gt;        Alias for -d
+        -s &lt;sep&gt;        Another alias for -d
+
+        Output column delimiter options (uppercase of same):
+        -D &lt;sep&gt;
+        -T &lt;sep&gt;
+        -S &lt;sep&gt;
+
+    Column_Specs:
+        filename:colno  Extract colno from filename
+        filename        Use filename to extract columns from
+        colno           Use column colno to extract columns
+
+        If there's an excess of colno args, will duplicate the last
+        file arg.  If there's an excess of file args, will duplicate
+        the last colno.
+
+        If omitted:
+            Default file is /dev/stdin
+            Default colno is 0
+
+    Examples:
+        cuts 0 file1 file2 file3      Extract 1st (0) column from the 3 files
+
+        cuts file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
+
+        cuts file1 file2 file3        Same as above (0 is default colno)
+
+        cuts -1 f1 f2 f3              Extract last column from each of f1, f2, and f3
+
+        cuts file1:0 file2:-1         Extract 1st (0) column from file1 and last column from file2
+
+        cuts 0 2 3                    Extract columns (0,2,3) from /dev/stdin
+
+        cuts f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
+</code></pre>
+
+<h2>
+<a name="thoughts--todos-contributions-welcome" class="anchor" href="#thoughts--todos-contributions-welcome"><span class="octicon octicon-link"></span></a>Thoughts &amp; TODOs (contributions welcome)</h2>
+
+<p>I made no effort to make <code>cuts</code> fast.  Although compared to the
+I/O overhead, there may be not much need for it.  If you have ideas
+on how to make the column extractions and joining more efficient,
+that would be welcome.  In particular, if you extract multiple columns
+from the same file, the current implementation opens it mutiple times,
+just for the sake of siimplicity and generalization.  Although the
+buffer cache should ensure that physical IO is avoided, having this
+implemented more efficiently, would be nice.</p>
+
+<p>Per file column input delimiters.  I haven't had the need so far so
+that took a back-seat in priority.  The most common case of
+intermixing TSV and CSV files as inputs is working thanks to
+the current default multi-match pattern <code>$ICS</code> which simply
+matching all of: multi-white-space, tabs, or (optionally space surrounded)
+commas.  Even an extreme case of a schizophrenic input like:</p>
+
+<pre><code>$ cat schizo.csv
+0,1 ,  2
+0,1   ,2
+0,1   ,2
+a  b   c
+</code></pre>
+
+<p>Works correctly, and as designed/expected, with the present smart
+column-delimiter trick:</p>
+
+<pre><code>$ cuts -1 schizo.csv
+2
+2
+2
+c
+</code></pre>
+
+<p>This is considered a blissful feature.</p>
+
+<p>Implement <code>cut</code> rarely used options?  I haven't had the need for
+them, and if I ever do, I can simply use <code>cut</code> itself, so I haven't
+even tried to implement stuff like fixed-width field support,
+byte-offsets, <code>--complement</code>, <code>--characters</code>.   The basic features
+that <code>cut</code> is missing were much more critical for me when writing <code>cuts</code>.</p>
+
+<p>Why do I support the <code>filename:colno</code> syntax? you may ask.
+It seems redundant (since <code>filename colno</code> works just as well.)
+The reason is that sometimes you may have files named <code>1</code>, <code>2</code> etc.
+This introduces an ambiguity: are these arguments files or column numbers?
+<code>cuts</code> solves this ambiguity by:</p>
+
+<ul>
+<li>Giving priority to files (it first checks arguments for file existence)</li>
+<li>In case you want to force <code>1</code> to a column number, even in the
+presence of a file by the same name, you can use the <code>file:colno</code> syntax.</li>
+<li>You may even use <code>#</code>, <code>,</code> or <code>;</code> (needs shell quoting), as the
+<code>file:colno</code> separator instead of <code>:</code> for somewhat greater control.</li>
+</ul>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/arielf" class="avatar"><img src="https://avatars0.githubusercontent.com/u/159664?s=60" width="48" height="48"/></a> <a href="https://github.com/arielf">arielf</a> maintains <a href="https://github.com/arielf/cuts">Cuts</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="http://pages.github.com/">GitHub Pages</a><br/>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/arielf/cuts/tarball/master" class="tar">tar</a><a href="https://github.com/arielf/cuts/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
