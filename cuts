@@ -102,10 +102,18 @@ sub get_args {
 
     usage() if (-t STDIN && @ARGV == 0);
 
-    # If 1st arg looks like an option, inject '--' first
-    # so getopts() doesn't barf on it.
-    if ($ARGV[0] =~ /^-\d*$/) {
-        unshift(@ARGV, '--');
+    # If one of the 1st args looks like an option but is actually
+    # a "from-end" column index or a '-' stdin spec, inject '--' just
+    # before it so getopts() doesn't barf on it.
+    my $nargs = scalar @ARGV;
+    for (my $i = 0; $i < $nargs; $i++) {
+        my $arg = $ARGV[$i];
+        # As long as we have args looking as options
+        last unless ($arg =~ /^-/);
+        if ($arg =~ /^-\d*$/) {
+            splice(@ARGV, $i, 0, '--');
+            last;
+        }
     }
     getopts('vd:t:s:D:T:S:');
 
@@ -272,9 +280,9 @@ cases this isn't needed.
 
  cuts file1:0 file2:-1     Extract 1st col from file1 & last col from file2
 
- cuts 0 2 3                Extract columns (0,2,3) from /dev/stdin
+ cuts 0 2 3                Extract cols (0,2,3) from /dev/stdin
 
- cuts f1 0 -1 f2           Extract 1st & last columns from f1 & last column (last colno seen) from f2
+ cuts f1 0 -1 f2           Extract 1st & last cols from f1 & last col (last colno seen) from f2
 
 =head1 AUTHOR
 
