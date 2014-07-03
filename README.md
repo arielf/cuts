@@ -307,7 +307,7 @@ This introduces an ambiguity: are these arguments files or column numbers?
 - Giving priority to files (it first checks arguments for file existence)
 - In case you want to force `1` to a column number, even in the
   presence of a file by the same name, you can use the `file:colno` syntax.
-- You may even use `;`, `#`, or `,` as the `file:colno` separator instead
-  of `:` for greater control.
+- You may even use `#`, `,` or `;` (needs shell quoting), as the
+  `file:colno` separator instead of `:` for somewhat greater control.
 
 
