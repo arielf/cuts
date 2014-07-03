@@ -305,12 +305,6 @@ that `cut` is missing were much more critical for me when writing `cuts`.
 Still on top of this is implementing column-ranges like: 3-5 and mixed
 ranges with lists like: 1,3-5,7
 
-- Giving priority to files (it first checks arguments for file existence)
-- In case you want to force `1` to a column number, even in the
-  presence of a file by the same name, you can use the `file:colno` syntax.
-- You may even use `#`, `,` or `;` (needs shell quoting), as the
-  `file:colno` separator instead of `:` for somewhat greater control.
-
 ### Other thoughts
 
 Why do I support the `filename:colno` syntax? you may ask.
@@ -318,5 +312,12 @@ It seems redundant (since `filename colno` works just as well.)
 The reason is that sometimes you may have files named `1`, `2` etc.
 This introduces an ambiguity: are these arguments files or column numbers?
 `cuts` solves this ambiguity by:
+
+ - Giving priority to files (it first checks arguments for file existence)
+ - In case you want to force `1` to a column number, even in the
+   presence of a file by the same name, you can use the `file:colno` syntax.
+ - You may even use `#`, `,` or `;` (needs shell quoting), as the
+  `file:colno` separator instead of `:` for somewhat greater control.
+
 
 
