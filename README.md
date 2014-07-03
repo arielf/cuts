@@ -126,7 +126,7 @@ the human interface _as simple and minimalist as possible_
 `cuts` also supports `-` as a handy alias for `stdin`.
 
 
-## Reasonable defaults for everything
+### Reasonable defaults for everything
 
 A file-name without a column-number will cause the *last* specified
 column-number to be reused.
@@ -156,7 +156,7 @@ overriden using `-T <sep>` (or -S, or -D).  This is chosen
 as a mnemonic: lowercase options are for input delimiters, while
 the respective upper-case options are for output delimiters.
 
-## Require minimal typing from the user
+### Require minimal typing from the user
 
 In addition to having reasonable defaults, `cuts` doesn't force you
 to type more than needed, or enforce an order of arguments on you.
@@ -173,7 +173,7 @@ $ cuts file.csv 0 1 2
 ```
 
 
-## Input flexibility and tolerance to missing data
+### Input flexibility and tolerance to missing data
 
 One thing that `cuts` does is try and be completely tolerant
 and supportive to cases of missing data.  If you try to paste two columns,
@@ -187,7 +187,7 @@ field rather than resulting in a fatal error.  This is done by
 design and it conforms to the perl philosophy of silently converting
 undefined values to empty ones.
 
-## A few examples
+### Examples
 
 ```
     cuts 0 file1 file2      Extract 1st (0) column from both files
@@ -207,7 +207,8 @@ undefined values to empty ones.
 
 ```
 
-## Usage:
+
+### Usage
 
 Simply call `cuts` without any argument to get a full usage message:
 
@@ -257,7 +258,7 @@ Usage: cuts [Options] [Column_Specs]...
                                 + last column (last colno seen) from f2
 ```
 
-## Thoughts & TODOs (contributions welcome)
+### TODO items (contributions welcome)
 
 I made no effort to make `cuts` fast.  Although compared to the
 I/O overhead, there may be not much need for it.  If you have ideas
@@ -272,8 +273,9 @@ Per file column input delimiters.  I haven't had the need so far so
 that took a back-seat in priority.  The most common case of
 intermixing TSV and CSV files as inputs is working thanks to
 the current default multi-match pattern `$ICS` which simply
-matching all of: multi-white-space, tabs, or (optionally space surrounded)
+matches all of: multi-white-space, tabs, or (optionally space surrounded)
 commas.  Even an extreme case of a schizophrenic input like:
+
 ```
 $ cat schizo.csv
 0,1 ,  2
@@ -284,6 +286,7 @@ a  b   c
 
 Works correctly, and as designed/expected, with the present smart
 column-delimiter trick:
+
 ```
 $ cuts -1 schizo.csv
 2
@@ -292,24 +295,28 @@ $ cuts -1 schizo.csv
 c
 ```
 
-This is considered a blissful feature.
+I consider it a blissful feature.
 
 Implement `cut` rarely used options?  I haven't had the need for
 them, and if I ever do, I can simply use `cut` itself, so I haven't
 even tried to implement stuff like fixed-width field support,
 byte-offsets, `--complement`, `--characters`.   The basic features
 that `cut` is missing were much more critical for me when writing `cuts`.
-
-Why do I support the `filename:colno` syntax? you may ask.
-It seems redundant (since `filename colno` works just as well.)
-The reason is that sometimes you may have files named `1`, `2` etc.
-This introduces an ambiguity: are these arguments files or column numbers?
-`cuts` solves this ambiguity by:
+Still on top of this is implementing column-ranges like: 3-5 and mixed
+ranges with lists like: 1,3-5,7
 
 - Giving priority to files (it first checks arguments for file existence)
 - In case you want to force `1` to a column number, even in the
   presence of a file by the same name, you can use the `file:colno` syntax.
 - You may even use `#`, `,` or `;` (needs shell quoting), as the
   `file:colno` separator instead of `:` for somewhat greater control.
+
+### Other thoughts
+
+Why do I support the `filename:colno` syntax? you may ask.
+It seems redundant (since `filename colno` works just as well.)
+The reason is that sometimes you may have files named `1`, `2` etc.
+This introduces an ambiguity: are these arguments files or column numbers?
+`cuts` solves this ambiguity by:
 
 
