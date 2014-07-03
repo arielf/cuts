@@ -9,7 +9,7 @@ extract columns from files.  Unfortunately, it is pretty limited in power.
 The following list demonstrates what is missing in `cut` and why
 I felt the need to write `cuts`:
 
-- `cut` doesn't automatically detect the file input column delimiter:
+#### `cut` doesn't automatically detect the file input column delimiter:
 ```
 $ cut -f1 test.dat
 0,1,2
@@ -24,8 +24,9 @@ $ cuts 0 test.dat
 ```
 As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st column.
 
-- `cut` doesn't support mixed input delimiters (e.g. both CSV and TSV)
-   and it doesn't perform the commonly useful automatic side-by-side pasting:
+#### `cut` doesn't support mixed input delimiters (e.g. both CSV and TSV)
+#### `cut` doesn't do the automatic side-by-side pasting
+
 ```
 #
 # -- cut fails all the way on this simple example
@@ -48,18 +49,27 @@ $ cuts 1 test.csv test.tsv
 1	1
 1	1
 ```
-- `cut` doesn't support multi-char column delimiters, in particular,
-  it can't deal with the most common case of any white-space sequence
-- `cut` doesn't support perl style regex delimiters, when your
-  delimiter is a bit more complex (say, any sequence of non-digits)
-  you're out-of-luck.
-- `cut` doesn't support negative (from end) column numbers which is
-  very useful when you have, say 257 fields (but you haven't counted
-  them, so you don't really know), and you're interested in the last field,
-  or the one before the last etc.
-- `cut` doesn't support changing order of columns; it ignores the
-  order requested by the user and always force-prints the fields
-  in order from low to high:
+
+#### `cut` doesn't support multi-char column delimiters
+
+in particular, it can't deal with the most common case of any
+white-space sequence
+
+#### `cut` doesn't support perl style regex delimiters
+
+when your delimiter is a bit more complex (say, any sequence of non-digits)
+you're out-of-luck.
+
+#### `cut` doesn't support negative (from end) column numbers
+
+This is very useful when you have, say 257 fields (but you haven't counted
+them, so you don't really know), and you're interested in the last field,
+or the one before the last etc.
+
+#### `cut` doesn't support changing order of columns
+
+It ignores the order requested by the user and always force-prints
+the fields in order from low to high:
 
 ```
 $ cut -f3,2,1 file.tsv
@@ -76,11 +86,19 @@ cuts 2 1 0 file.tsv
 2	1	0
 ```
 
-- `cut` is non-flexible when it comes to variable number of columns in the input
-- `cut` is unforgiving if you accidentally use `-t` (like `sort` does) for the delimiter/delimiter instead of `-d` (happens to me too often)
-- `cut` requires too much typing for simple column extraction tasks
-  because it doesn't allow for reasonable defaults. It'll result
-  in errors when arguments are missing:
+#### `cut` is non-flexible when it comes to variable number of columns in the input
+
+#### `cut` is unforgiving if you accidentally use `-t` (like `sort` does)
+
+It is unfortunate that the Unix toolset is so inconsistent in the
+choice of option-letters.  `cuts` solves this by allowing 'any of
+the above'.
+
+#### `cut` requires too much typing for simple column extraction tasks
+
+This is mostly because `cut` doesn't support reasonable defaults.
+It'll result in errors when arguments are missing:
+
 ```
     $ cut -d, example.csv
     cut: you must specify a list of bytes, characters, or fields
@@ -92,8 +110,10 @@ cuts 2 1 0 file.tsv
     0
     0
 ```
-- `cut` doesn't support multi-file & multi-column mixes (e.g. 2nd col
-  from file1 and 3rd from file2)
+
+#### `cut` doesn't support multi-file & multi-column mixes
+
+For example 2nd column from file1 and 3rd column from file2.
 
 Obviously with the power of the `bash` shell you can do stuff like:
 ```
@@ -105,6 +125,7 @@ while still not supporting regex-style delimiters and offsets from end.
 
 Compare the above to the much simpler, and more intuitive, `cuts` version,
 which works right out of the box, in any shell:
+
 ```
     $ cuts file.csv 0 file.tsv 1
 ```
