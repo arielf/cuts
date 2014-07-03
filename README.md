@@ -147,7 +147,7 @@ the human interface _as simple and minimalist as possible_
 `cuts` also supports `-` as a handy alias for `stdin`.
 
 
-### Reasonable defaults for everything
+## Reasonable defaults for everything
 
 A file-name without a column-number will cause the *last* specified
 column-number to be reused.
@@ -177,7 +177,7 @@ overriden using `-T <sep>` (or -S, or -D).  This is chosen
 as a mnemonic: lowercase options are for input delimiters, while
 the respective upper-case options are for output delimiters.
 
-### Require minimal typing from the user
+## Require minimal typing from the user
 
 In addition to having reasonable defaults, `cuts` doesn't force you
 to type more than needed, or enforce an order of arguments on you.
@@ -194,7 +194,7 @@ $ cuts file.csv 0 1 2
 ```
 
 
-### Input flexibility and tolerance to missing data
+## Input flexibility and tolerance to missing data
 
 One thing that `cuts` does is try and be completely tolerant
 and supportive to cases of missing data.  If you try to paste two columns,
@@ -208,7 +208,7 @@ field rather than resulting in a fatal error.  This is done by
 design and it conforms to the perl philosophy of silently converting
 undefined values to empty ones.
 
-### Examples
+## Examples
 
 ```
     cuts 0 file1 file2      Extract 1st (0) column from both files
@@ -229,7 +229,7 @@ undefined values to empty ones.
 ```
 
 
-### Usage
+## Usage
 
 Simply call `cuts` without any argument to get a full usage message:
 
@@ -279,7 +279,7 @@ Usage: cuts [Options] [Column_Specs]...
                                 + last column (last colno seen) from f2
 ```
 
-### TODO items (contributions welcome)
+## TODO items (contributions welcome)
 
 I made no effort to make `cuts` fast.  Although compared to the
 I/O overhead, there may be not much need for it.  If you have ideas
@@ -326,7 +326,7 @@ that `cut` is missing were much more critical for me when writing `cuts`.
 Still on top of this is implementing column-ranges like: 3-5 and mixed
 ranges with lists like: 1,3-5,7
 
-### Other thoughts
+## Other thoughts
 
 Why do I support the `filename:colno` syntax? you may ask.
 It seems redundant (since `filename colno` works just as well.)
@@ -350,5 +350,5 @@ option, while `-3` is a column index specifier) this works as expected:
 
 ```
     $ cuts -v -3 file.txt
-
+```
 
