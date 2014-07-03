@@ -189,20 +189,20 @@ undefined values to empty ones.
 
 ## A few examples
 ```
-    cuts 0 file1 file2 file3      Extract 1st (0) column from the 3 files
+    cuts 0 file1 file2      Extract 1st (0) column from both files
 
-    cuts file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
+    cuts file1 file2 0      Same as above (flexible argument order)
 
-    cuts file1 file2 file3        Same as above (0 is default colno)
+    cuts file1 file2        Same as above (0 is default colno)
 
-    cuts -1 f1 f2 f3              Extract last column from each of f1, f2, and f3
+    cuts -1 f1 f2 f3        Last column from each of f1, f2, & f3
 
-    cuts file1:0 file2:-1         Extract 1st (0) column from file1 and last column from file2
+    cuts file1:0 file2:-1   1st (0) column from file1 & last column from file2
 
-    cuts 0 2 3                    Extract columns (0,2,3) from /dev/stdin
+    cuts 0 2 3              Columns (0,2,3) from /dev/stdin
 
-    cuts f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
-```
+    cuts f1 0 -1 f2         1st & last columns from f1
+                            + last column (last colno seen) from f2
 
 ## Usage:
 
@@ -238,19 +238,20 @@ Usage: cuts [Options] [Column_Specs]...
             Default colno is 0
 
     Examples:
-        cuts 0 file1 file2 file3      Extract 1st (0) column from the 3 files
+        cuts 0 file1 file2      1st (0) column from both files
 
-        cuts file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
+        cuts file1 file2 0      Same as above (flexible argument order)
 
-        cuts file1 file2 file3        Same as above (0 is default colno)
+        cuts file1 file2        Same as above (0 is default colno)
 
-        cuts -1 f1 f2 f3              Extract last column from each of f1, f2, and f3
+        cuts -1 f1 f2 f3        Last column from each of f1, f2, & f3
 
-        cuts file1:0 file2:-1         Extract 1st (0) column from file1 and last column from file2
+        cuts file1:0 file2:-1   1st column from file1 & last column from file2
 
-        cuts 0 2 3                    Extract columns (0,2,3) from /dev/stdin
+        cuts 0 2 3              Columns (0,2,3) from /dev/stdin
 
-        cuts f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
+        cuts f1 0 -1 f2         1st & last columns from f1
+                                + last column (last colno seen) from f2
 ```
 
 ## Thoughts & TODOs (contributions welcome)
