@@ -201,3 +201,92 @@ sub print_cols() {
 get_args();
 print_cols();
 
+__END__
+
+=head1 NAME
+
+cuts - Unix/POSIX cut (and paste) on steroids
+
+=head1 SYNOPSIS
+
+cuts [Options] [Column_Specs]...
+
+Column_Specs:
+
+  filename:colno  Extract colno from filename
+  filename        Use filename to extract columns from
+  colno           Use column colno to extract columns
+  -               An alias for stdin
+
+  If there's an excess of colno args, will duplicate the last
+  file arg.  If there's an excess of file args, will duplicate
+  the last colno.
+
+  If omitted:
+      Default file is /dev/stdin
+      Default colno is 0
+
+=head1 DESCRIPTION
+
+cuts extracts colums from files.  Unlike the traditional Unix cut it
+supports:
+
+=over 4
+
+ - auto-detection of input field delimiters
+ - multi-char, and variable length, delimiters
+ - delimiters matching perl regex (via the -d option)
+ - field indexing relative to end-of-line (negative indexes)
+ - mimimalist typing (everything has a default)
+ - auto-pasting side-by-side of columns from multiple files
+ - tolerance for undefined fields (will be considered empty)
+ - preservation of user specified order of fields
+
+=back
+
+=head1 OPTIONS
+
+Input column separator options (lowercase):
+    -d <sep>        Use <sep> (perl regexp) as column delimiter
+    -t <sep>        Alias for -d
+    -s <sep>        Another alias for -d
+    
+Output column separator options (mnemonic: uppercase of same):
+    -D <sep>
+    -T <sep>
+    -S <sep>
+
+In rare cases of ambiguity betwee cuts options and arguments
+you may add -- to separate between the two groups.  In most common
+cases this isn't needed.
+
+=head1 EXAMPLES
+
+ cuts 0 file1 file2        Extract & join 1st (0) column from the 2 files
+
+ cuts file1 file2 0        Same as above (flexible argument order)
+
+ cuts file1 file2          Same as above (0 is default colno)
+
+ cuts -1 f1 f2 f3          Extract last column from each of f1, f2, & f3
+
+ cuts file1:0 file2:-1     Extract 1st col from file1 & last col from file2
+
+ cuts 0 2 3                Extract columns (0,2,3) from /dev/stdin
+
+ cuts f1 0 -1 f2           Extract 1st & last columns from f1 & last column (last colno seen) from f2
+
+=head1 AUTHOR
+
+Ariel Faigon
+
+=head1 SEE ALSO
+
+cut(1), paste(1), awk(1)
+
+=head1 BUGS
+
+Probably
+
+=cut
+

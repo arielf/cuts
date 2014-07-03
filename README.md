@@ -296,8 +296,6 @@ even tried to implement stuff like fixed-width field support,
 byte-offsets, `--complement`, `--characters`.   The basic features
 that `cut` is missing were much more critical for me when writing `cuts`.
 
-Embed the doc in the perl executable, `perldoc` style.
-
 Why do I support the `filename:colno` syntax? you may ask.
 It seems redundant (since `filename colno` works just as well.)
 The reason is that sometimes you may have files named `1`, `2` etc.
