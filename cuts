@@ -1,0 +1,300 @@
+#!/usr/bin/perl -w
+# vim: ts=4 sw=4 expandtab
+#
+# This is somewhat similar to the traditional Unix/POSIX 'cut' utility,
+# but in a humble effort to blunt "the Unix Haters Handbook," it is
+# made more powerful, and actually useful:
+#
+#   - Supports automatic determination of input-column separator
+#   - Supports regexps for input-column separator
+#   - Supports negative (from end) column numbers (-1 is last column)
+#   - Supports multiple input files & columns (e.g. file1:col1 file2:col2)
+#   - More friendly, less need to type prefix options (numbers imply columns)
+#   - Has sensible defaults for everything, less typing needed
+#
+# -- ariel faigon - 2014-06
+# -- released under the OSI approved artistic license - see LICENCE file
+#
+use strict;
+use Getopt::Std;
+use vars qw($opt_v
+            $opt_s $opt_d $opt_t
+            $opt_S $opt_D $opt_T);
+
+# Alternative file:colno char separators
+my $FCsep = ':;,#';
+
+# Default input column separator (smart)
+my $ICS = '(?:\s*,\s*|\s+)';
+# Default output column separator
+my $OCS = "\t";
+
+# -- names of files to extract columns from, may repeat
+my @Files = ();
+# -- Corresponding column number for each file entry
+my @ColNos;
+# -- Corresponding column separator for each file entry
+my @ColSep;     # per file separator support - not yet implemented
+
+sub v {
+    return unless $opt_v;
+    if (@_ == 1) {
+        print STDERR @_;
+    } else {
+        printf STDERR @_;
+    }
+}
+
+sub usage(@) {
+    print STDERR @_, "\n" if @_;
+    die "Usage: $0 [Options] [Column_Specs]...
+    Options:
+        -v              verbose (mostly for debugging)
+
+        Input column separator options (lowercase):
+          -d <sep>        Use <sep> (perl regexp) as column delimiter
+          -t <sep>        Alias for -d
+          -s <sep>        Another alias for -d
+    
+        Output column separator options (mnemonic: uppercase of same):
+          -D <sep>
+          -T <sep>
+          -S <sep>
+
+    In rare cases of ambiguity betwee cuts options and arguments
+    you may add -- to separate between the two groups.  In most common
+    cases this isn't needed.
+
+    Column_Specs:
+        filename:colno  Extract colno from filename
+        filename        Use filename to extract columns from
+        colno           Use column colno to extract columns
+        -               An alias for stdin
+
+        If there's an excess of colno args, will duplicate the last
+        file arg.  If there's an excess of file args, will duplicate
+        the last colno.
+
+        If omitted:
+            Default file is /dev/stdin
+            Default colno is 0
+
+    Examples:
+        $0 0 file1 file2 file3      Extract & join 1st (0) column from the 3 files
+
+        $0 file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
+
+        $0 file1 file2 file3        Same as above (0 is default colno)
+
+        $0 -1 f1 f2 f3              Extract last column from each of f1, f2, and f3
+
+        $0 file1:0 file2:-1         Extract 1st (0) column from file1 and last column from file2
+
+        $0 0 2 3                    Extract columns (0,2,3) from /dev/stdin
+
+        $0 f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
+";
+}
+
+
+sub get_args {
+    $0 =~ s{.*/}{};
+
+    usage() if (-t STDIN && @ARGV == 0);
+
+    # If one of the 1st args looks like an option but is actually
+    # a "from-end" column index or a '-' stdin spec, inject '--' just
+    # before it so getopts() doesn't barf on it.
+    my $nargs = scalar @ARGV;
+    for (my $i = 0; $i < $nargs; $i++) {
+        my $arg = $ARGV[$i];
+        # As long as we have args looking as options
+        last unless ($arg =~ /^-/);
+        if ($arg =~ /^-\d*$/) {
+            splice(@ARGV, $i, 0, '--');
+            last;
+        }
+    }
+    getopts('vd:t:s:D:T:S:');
+
+    if ($opt_t || $opt_d || $opt_s) {
+        $ICS = ($opt_t || $opt_d || $opt_s);
+        v("$ICS='%s'\n", $ICS);
+    }
+    if ($opt_T || $opt_D || $opt_S) {
+        $OCS = ($opt_T || $opt_D || $opt_S);
+        v("$OCS='%s'\n", $OCS);
+    }
+    my ($last_file, $last_col);
+
+    my $fc_pat = sprintf('^([^%s]+)[%s](-?[0-9]+)$', $FCsep, $FCsep);
+
+    # v("fc_pat: %s\n", $fc_pat);
+
+    foreach my $arg (@ARGV) {
+        # v("arg: %s\n", $arg);
+        # -- filename
+        if (-f $arg || $arg eq '-') {
+            v("filename: arg='%s'\n", $arg);
+            $arg = '/dev/stdin' if ($arg eq '-');
+            push(@Files, $arg);
+            $last_file = $arg;
+        } elsif ($arg =~ /^-?\d+$/) {
+            # -- colno
+            v("colno: arg='%s'\n", $arg);
+            push(@ColNos, $arg);
+            $last_col = $arg;
+        } elsif ($arg =~ /$fc_pat/o) {
+            # -- filename:colno
+            my ($file, $colno) = ($1, $2);
+            v("filename:colno: %s =~ /%s/ -> (%s, %s)\n",
+                               $arg, $fc_pat, $file, $colno);
+            if (-f $file) {
+                push(@Files, $file);
+                push(@ColNos, $colno);
+            } else {
+                die "$0: arg: $arg, but $file: $!\n";
+            }
+        } else {
+            usage("$arg: no such file (or unsupported argument)");
+        }
+    }
+    # make the two lists (@Files, @ColNos) same length by repeating last
+    if (@Files > @ColNos) {
+        $last_col = 0 unless (defined $last_col);
+        while (@Files > @ColNos) {
+            push(@ColNos, $last_col);
+        }
+    } elsif (@ColNos > @Files) {
+        $last_file = '/dev/stdin' unless (defined $last_file);
+        while (@ColNos > @Files) {
+            push(@Files, $last_file);
+        }
+    }
+    v("get_args finishing:\n\tfiles=(@Files)\n\tcolnos=(@ColNos)\n");
+}
+
+my @FDS = ();
+
+sub get_fields() {
+    my @fields = ();
+    my $col_idx = -1;
+    foreach my $fd (@FDS) {
+        $col_idx++;
+        next if (eof($fd));
+
+        my $line = <$fd>;
+        chomp($line);
+        my $colno = $ColNos[$col_idx];
+        my $f = (split($ICS, $line))[$colno];
+        $f = '' unless (defined $f);
+        push(@fields, $f);
+    }
+    @fields;
+}
+
+sub print_cols() {
+    for (my $i = 0; $i < @Files; $i++) {
+        open($FDS[$i], $Files[$i]) ||
+            die "$0: can't open: $Files[$i]: $!\n";
+    }
+
+    while (my @fields = get_fields()) {
+        print join($OCS, @fields), "\n";
+    }
+}
+
+
+# -- main
+get_args();
+print_cols();
+
+__END__
+
+=head1 NAME
+
+cuts - Unix/POSIX cut (and paste) on steroids
+
+=head1 SYNOPSIS
+
+cuts [Options] [Column_Specs]...
+
+Column_Specs:
+
+  filename:colno  Extract colno from filename
+  filename        Use filename to extract columns from
+  colno           Use column colno to extract columns
+  -               An alias for stdin
+
+  If there's an excess of colno args, will duplicate the last
+  file arg.  If there's an excess of file args, will duplicate
+  the last colno.
+
+  If omitted:
+      Default file is /dev/stdin
+      Default colno is 0
+
+=head1 DESCRIPTION
+
+cuts extracts colums from files.  Unlike the traditional Unix cut it
+supports:
+
+=over 4
+
+ - auto-detection of input field delimiters
+ - multi-char, and variable length, delimiters
+ - delimiters matching perl regex (via the -d option)
+ - field indexing relative to end-of-line (negative indexes)
+ - mimimalist typing (everything has a default)
+ - auto-pasting side-by-side of columns from multiple files
+ - tolerance for undefined fields (will be considered empty)
+ - preservation of user specified order of fields
+
+=back
+
+=head1 OPTIONS
+
+Input column separator options (lowercase):
+    -d <sep>        Use <sep> (perl regexp) as column delimiter
+    -t <sep>        Alias for -d
+    -s <sep>        Another alias for -d
+    
+Output column separator options (mnemonic: uppercase of same):
+    -D <sep>
+    -T <sep>
+    -S <sep>
+
+In rare cases of ambiguity betwee cuts options and arguments
+you may add -- to separate between the two groups.  In most common
+cases this isn't needed.
+
+=head1 EXAMPLES
+
+ cuts 0 file1 file2        Extract & join 1st (0) column from the 2 files
+
+ cuts file1 file2 0        Same as above (flexible argument order)
+
+ cuts file1 file2          Same as above (0 is default colno)
+
+ cuts -1 f1 f2 f3          Extract last column from each of f1, f2, & f3
+
+ cuts file1:0 file2:-1     Extract 1st col from file1 & last col from file2
+
+ cuts 0 2 3                Extract cols (0,2,3) from /dev/stdin
+
+ cuts f1 0 -1 f2           Extract 1st & last cols from f1 & last col (last colno seen) from f2
+
+=head1 AUTHOR
+
+Ariel Faigon
+
+=head1 SEE ALSO
+
+cut(1), paste(1), awk(1)
+
+=head1 BUGS
+
+Probably
+
+=cut
+
