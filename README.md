@@ -188,6 +188,7 @@ design and it conforms to the perl philosophy of silently converting
 undefined values to empty ones.
 
 ## A few examples
+
 ```
     cuts 0 file1 file2      Extract 1st (0) column from both files
 
@@ -203,6 +204,8 @@ undefined values to empty ones.
 
     cuts f1 0 -1 f2         1st & last columns from f1
                             + last column (last colno seen) from f2
+
+```
 
 ## Usage:
 
