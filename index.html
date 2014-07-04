@@ -43,15 +43,20 @@ extract columns from files.  Unfortunately, it is pretty limited in power.</p>
 I felt the need to write <code>cuts</code>:</p>
 
 <h4>
-<a name="cut-doesnt-automatically-detect-the-file-input-column-delimiter" class="anchor" href="#cut-doesnt-automatically-detect-the-file-input-column-delimiter"><span class="octicon octicon-link"></span></a>
-<code>cut</code> doesn't automatically detect the file input column delimiter:</h4>
+<a name="cuts-automatically-detects-the-file-input-column-delimiter" class="anchor" href="#cuts-automatically-detects-the-file-input-column-delimiter"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> automatically detects the file input column delimiter:</h4>
 
-<pre><code>$ cut -f1 test.dat
+<pre><code>#
+# -- cut doesn't:
+#
+$ cut -f1 test.dat
 0,1,2
 0,1,2
 0,1,2
 
-# -- compare to cuts:
+#
+# -- cuts does:
+#
 $ cuts 0 test.dat
 0
 0
@@ -61,12 +66,12 @@ $ cuts 0 test.dat
 <p>As you can see, I prefer zero-based indexing.  <code>cuts</code> uses 0 for 1st column.</p>
 
 <h4>
-<a name="cut-doesnt-support-mixed-input-delimiters-eg-both-csv-and-tsv" class="anchor" href="#cut-doesnt-support-mixed-input-delimiters-eg-both-csv-and-tsv"><span class="octicon octicon-link"></span></a>
-<code>cut</code> doesn't support mixed input delimiters (e.g. both CSV and TSV)</h4>
+<a name="cuts-supports-mixed-input-delimiters-eg-both-csv-and-tsv" class="anchor" href="#cuts-supports-mixed-input-delimiters-eg-both-csv-and-tsv"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> supports mixed input delimiters (e.g. both CSV and TSV)</h4>
 
 <h4>
-<a name="cut-doesnt-do-the-automatic-side-by-side-pasting" class="anchor" href="#cut-doesnt-do-the-automatic-side-by-side-pasting"><span class="octicon octicon-link"></span></a>
-<code>cut</code> doesn't do the automatic side-by-side pasting</h4>
+<a name="cuts-does-automatic-side-by-side-pasting" class="anchor" href="#cuts-does-automatic-side-by-side-pasting"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> does automatic side-by-side pasting</h4>
 
 <pre><code>#
 # -- From a user PoV, cut "fails" all the way on this simple example
@@ -92,20 +97,30 @@ $ cuts 1 test.csv test.tsv
 </code></pre>
 
 <h4>
-<a name="cut-doesnt-support-multi-char-column-delimiters" class="anchor" href="#cut-doesnt-support-multi-char-column-delimiters"><span class="octicon octicon-link"></span></a>
-<code>cut</code> doesn't support multi-char column delimiters</h4>
+<a name="cuts-supports-multi-char-column-delimiters" class="anchor" href="#cuts-supports-multi-char-column-delimiters"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> supports multi-char column delimiters</h4>
 
-<p>in particular, it can't deal with the most common case of any
-white-space sequence:</p>
+<p>In particular, standard <code>cut</code> can't deal with the very
+common case of any white-space sequence:</p>
 
-<pre><code>$ cat 012.txt
+<pre><code>#
+# -- a file with variable length space-delimiters
+#
+$ cat 012.txt
 0  1  2
 0   1   2
 0    1     2
+
+#
+# -- standard cut doesn't "cut it":
+#
 $ cut -d' ' -f2 012.txt
 
 
 
+#
+# -- cuts does what makes sense:
+#
 $ cuts 1 012.txt
 1
 1
@@ -113,19 +128,25 @@ $ cuts 1 012.txt
 </code></pre>
 
 <h4>
-<a name="cut-doesnt-support-perl-style-regex-delimiters" class="anchor" href="#cut-doesnt-support-perl-style-regex-delimiters"><span class="octicon octicon-link"></span></a>
-<code>cut</code> doesn't support perl style regex delimiters</h4>
+<a name="cuts-supports-powerful-perl-style-regex-delimiters" class="anchor" href="#cuts-supports-powerful-perl-style-regex-delimiters"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> supports powerful (perl style) regex delimiters</h4>
 
-<p>when your delimiter is a bit more complex (say, any sequence of non-digits)
-you're out-of-luck. <code>cuts</code> fixes this by allowing you to specify any
-perl regular-expression (regexp) as the delimiter:</p>
+<p>When your delimiter is a bit more complex (say, any sequence of non-digits)
+and you have <code>cut</code>, you're out-of-luck. <code>cuts</code> fixes this by allowing you
+to specify any perl regular-expression (regexp) as the delimiter:</p>
 
-<pre><code>$ cat 012.regex
+<pre><code>#
+# -- a file with numbers separated by mixed non-numeric chars
+#
+$ cat 012.regex
 0-----1-------2
 0 ## 1 #### 2
 0 aa 1 bbbbbbb 2
 
-# -- delimiter is any non-empty sequence of non-digits
+#
+# -- cuts accepts perl regexes for delimiters
+#    in this case, we set delimiter regex to any sequence of non-digits
+#
 $ cuts -d '[^0-9]+' 1 012.regex
 1
 1
@@ -133,15 +154,18 @@ $ cuts -d '[^0-9]+' 1 012.regex
 </code></pre>
 
 <h4>
-<a name="cut-doesnt-support-negative-from-end-column-numbers" class="anchor" href="#cut-doesnt-support-negative-from-end-column-numbers"><span class="octicon octicon-link"></span></a>
-<code>cut</code> doesn't support negative (from end) column numbers</h4>
+<a name="cuts-supports-negative-from-end-column-numbers" class="anchor" href="#cuts-supports-negative-from-end-column-numbers"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> supports negative (from end) column numbers</h4>
 
 <p>This is very useful when you have, say, 257 fields (but you haven't counted
 them, so you don't really know), and you're interested in the last field,
 or the one before the last etc.  <code>cuts</code> supports negative offsets
 from the end:</p>
 
-<pre><code>$ cuts -1 012.txt
+<pre><code>#
+# -- Ask cuts to print last field only, by using a negative offset
+#
+$ cuts -1 012.txt
 2
 2
 2
@@ -149,14 +173,14 @@ from the end:</p>
 </code></pre>
 
 <h4>
-<a name="cut-doesnt-support-changing-order-of-columns" class="anchor" href="#cut-doesnt-support-changing-order-of-columns"><span class="octicon octicon-link"></span></a>
-<code>cut</code> doesn't support changing order of columns</h4>
+<a name="cuts-supports-changing-order-of-columns" class="anchor" href="#cuts-supports-changing-order-of-columns"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> supports changing order of columns</h4>
 
-<p>It ignores the order requested by the user and always force-prints
-the fields in order from low to high:</p>
+<p>Unlike <code>cut</code> which ignores the order requested by the user,
+and always force-prints the fields in order from low to high:</p>
 
 <pre><code>#
-# -- cut can't change the order
+# -- cut can't change the order of columns:
 #
 $ cut -f3,2,1 file.tsv
 0   1   2
@@ -164,7 +188,7 @@ $ cut -f3,2,1 file.tsv
 0   1   2
 
 #
-# -- compare to cuts, which does exactly what you want:
+# -- cuts does exactly what you ask it to:
 #
 $ cuts 2 1 0 file.tsv 
 2   1   0
@@ -173,12 +197,12 @@ $ cuts 2 1 0 file.tsv
 </code></pre>
 
 <h4>
-<a name="cut-is-non-flexible-when-it-comes-to-variable-number-of-columns-in-the-input" class="anchor" href="#cut-is-non-flexible-when-it-comes-to-variable-number-of-columns-in-the-input"><span class="octicon octicon-link"></span></a>
-<code>cut</code> is non-flexible when it comes to variable number of columns in the input</h4>
+<a name="cuts-is-flexible-when-it-comes-to-variable-number-of-columns-in-the-input" class="anchor" href="#cuts-is-flexible-when-it-comes-to-variable-number-of-columns-in-the-input"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> is flexible when it comes to variable number of columns in the input</h4>
 
 <h4>
-<a name="cut-is-unforgiving-if-you-accidentally-use--t-like-sort-does" class="anchor" href="#cut-is-unforgiving-if-you-accidentally-use--t-like-sort-does"><span class="octicon octicon-link"></span></a>
-<code>cut</code> is unforgiving if you accidentally use <code>-t</code> (like <code>sort</code> does)</h4>
+<a name="cuts-is-forgiving-if-you-accidentally-use--t-like-sort-does" class="anchor" href="#cuts-is-forgiving-if-you-accidentally-use--t-like-sort-does"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> is forgiving if you accidentally use <code>-t</code> (like <code>sort</code> does)</h4>
 
 <p>It is unfortunate that the Unix toolset is so inconsistent in the
 choice of option-letters.  <code>cuts</code> solves this by allowing 'any of
@@ -187,26 +211,31 @@ you think "separator" instead of "delimiter" - it still works
 (and <code>-t</code>, which is used by <code>sort</code>, works just as well).</p>
 
 <h4>
-<a name="cut-requires-too-much-typing-for-simple-column-extraction-tasks" class="anchor" href="#cut-requires-too-much-typing-for-simple-column-extraction-tasks"><span class="octicon octicon-link"></span></a>
-<code>cut</code> requires too much typing for simple column extraction tasks</h4>
+<a name="cuts-requires-minimal-typing-for-simple-column-extraction-tasks" class="anchor" href="#cuts-requires-minimal-typing-for-simple-column-extraction-tasks"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> requires minimal typing for simple column extraction tasks</h4>
 
-<p>This is mostly because <code>cut</code> doesn't support reasonable defaults.
-So <code>cut</code> errors when arguments are missing:</p>
+<p><code>cut</code> is hader to use and less friendly becuase it doesn't support
+reasonable defaults. For example:</p>
 
-<pre><code>    $ cut -d, example.csv
-    cut: you must specify a list of bytes, characters, or fields
+<pre><code>#
+# -- `cut` errors when arguments are missing:
+#
+$ cut -d, example.csv
+cut: you must specify a list of bytes, characters, or fields
 
-    # -- compare to cuts, where default is 1st field &amp;
-    #    field-delimiters are auto-detected for most common cases:
-    $ cuts example.csv
-    0
-    0
-    0
+#
+# -- compare to cuts, where default is 1st field &amp;
+#    field-delimiters are auto-detected for most common cases:
+#
+$ cuts example.csv
+0
+0
+0
 </code></pre>
 
 <h4>
-<a name="cut-doesnt-support-multi-file--multi-column-mixes" class="anchor" href="#cut-doesnt-support-multi-file--multi-column-mixes"><span class="octicon octicon-link"></span></a>
-<code>cut</code> doesn't support multi-file &amp; multi-column mixes</h4>
+<a name="cuts-supports-multi-file--multi-column-mixes" class="anchor" href="#cuts-supports-multi-file--multi-column-mixes"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> supports multi-file &amp; multi-column mixes</h4>
 
 <p>For example 2nd column from file1 and 3rd column from file2.</p>
 
@@ -221,7 +250,7 @@ while still not supporting regex-style delimiters and offsets from end.</p>
 <p>Compare the above to the much simpler, and more intuitive, <code>cuts</code> version,
 which works right out of the box, in any shell:</p>
 
-<pre><code>    $ cuts file.csv 0 file.tsv 1
+<pre><code>$ cuts file.csv 0 file.tsv 1
 </code></pre>
 
 <p>Other utilities, like <code>awk</code> or <code>perl</code> give you more power at the expense
