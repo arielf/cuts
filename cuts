@@ -21,13 +21,23 @@ use vars qw($opt_v
             $opt_s $opt_d $opt_t
             $opt_S $opt_D $opt_T);
 
-# Alternative file:colno char separators
-my $FCsep = ':;,#';
+my $ConfigFile = "$ENV{HOME}/.cuts.pl";
 
-# Default input column separator (smart)
-my $ICS = '(?:\s*,\s*|\s+)';
-# Default output column separator
-my $OCS = "\t";
+# ----- CONFIGURATION SECTION START -----
+# ----- You may copy and change these values in your personal $ConfigFile
+
+# -- Alternative file:colno char separators
+our $FCsep = ':;,#';
+
+# -- Default input column separator (smart)
+our $ICS = '(?:\s*,\s*|\s+)';
+# -- Default output column separator
+our $OCS = "\t";
+# -- if you use a config file, you must end it with 1;
+# -- so executing it with 'do' succeeds
+1;
+
+# ----- CONFIGURATION SECTION END -----
 
 # -- names of files to extract columns from, may repeat
 my @Files = ();
@@ -117,6 +127,10 @@ sub get_args {
         }
     }
     getopts('vd:t:s:D:T:S:');
+    if (-e $ConfigFile) {
+        v("Found config file: %s\n", $ConfigFile);
+        do $ConfigFile || die "$0: $ConfigFile: $@\n";
+    }
 
     if ($opt_t || $opt_d || $opt_s) {
         $ICS = ($opt_t || $opt_d || $opt_s);
@@ -313,6 +327,28 @@ cases this isn't needed.
 =head1 AUTHOR
 
 Ariel Faigon
+
+=head1 FILES
+
+Optional personal configuration ~/.cuts.pl
+
+If this file exists, cuts will read it during startup allowing
+you override cuts default parameters, in particular the value of the
+$ICS input-column separator regex.  The syntax of this file is:
+
+    # -- Alternative file:colno char separators
+    our $FCsep = ':;,#';
+
+    # -- Default input column separator (smart)
+    our $ICS = '(?:\s*,\s*|\s+)';
+
+    # -- Default output column separator
+    our $OCS = "\t";
+
+    # -- if you use a config file, you must end it with 1;
+    # -- so executing it by cuts using perl 'do' succeeds.
+    1;
+
 
 =head1 SEE ALSO
 
