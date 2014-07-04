@@ -98,13 +98,37 @@ $ cuts 1 test.csv test.tsv
 <p>in particular, it can't deal with the most common case of any
 white-space sequence:</p>
 
-<pre><code></code></pre>
+<pre><code>$ cat 012.txt
+0  1  2
+0   1   2
+0    1     2
+$ cut -d' ' -f2 012.txt
+
+
+
+$ cuts 1 012.txt
+1
+1
+1
+</code></pre>
+
 <h4>
 <a name="cut-doesnt-support-perl-style-regex-delimiters" class="anchor" href="#cut-doesnt-support-perl-style-regex-delimiters"><span class="octicon octicon-link"></span></a>
 <code>cut</code> doesn't support perl style regex delimiters</h4>
 
 <p>when your delimiter is a bit more complex (say, any sequence of non-digits)
-you're out-of-luck.</p>
+you're out-of-luck:</p>
+
+<pre><code>$ cat 012.regex
+0-----1-------2
+0 ## 1 #### 2
+0 aa 1 bbbbbbb 2
+
+$ cuts -d '[^0-9]+' 1 012.regex
+1
+1
+1
+</code></pre>
 
 <h4>
 <a name="cut-doesnt-support-negative-from-end-column-numbers" class="anchor" href="#cut-doesnt-support-negative-from-end-column-numbers"><span class="octicon octicon-link"></span></a>
@@ -112,7 +136,14 @@ you're out-of-luck.</p>
 
 <p>This is very useful when you have, say 257 fields (but you haven't counted
 them, so you don't really know), and you're interested in the last field,
-or the one before the last etc.</p>
+or the one before the last etc.  <code>cuts</code> does:</p>
+
+<pre><code>$ cuts -1 012.txt
+2
+2
+2
+
+</code></pre>
 
 <h4>
 <a name="cut-doesnt-support-changing-order-of-columns" class="anchor" href="#cut-doesnt-support-changing-order-of-columns"><span class="octicon octicon-link"></span></a>
@@ -121,7 +152,10 @@ or the one before the last etc.</p>
 <p>It ignores the order requested by the user and always force-prints
 the fields in order from low to high:</p>
 
-<pre><code>$ cut -f3,2,1 file.tsv
+<pre><code>#
+# cut can't change the order
+#
+$ cut -f3,2,1 file.tsv
 0   1   2
 0   1   2
 0   1   2
@@ -129,7 +163,7 @@ the fields in order from low to high:</p>
 #
 # -- compare to cuts, which does exactly what you want:
 #
-cuts 2 1 0 file.tsv 
+$ cuts 2 1 0 file.tsv 
 2   1   0
 2   1   0
 2   1   0
@@ -201,15 +235,15 @@ the human interface <em>as simple and minimalist as possible</em></p>
 
 <p><code>cuts</code> also supports <code>-</code> as a handy alias for <code>stdin</code>.</p>
 
-<h1>
+<h2>
 <a name="cuts-design-principles" class="anchor" href="#cuts-design-principles"><span class="octicon octicon-link"></span></a>
-<code>cuts</code> design principles</h1>
+<code>cuts</code> design principles</h2>
 
 <p>The following are the principles which guide the design decisions of
 cuts.</p>
 
-<h2>
-<a name="reasonable-defaults-for-everything" class="anchor" href="#reasonable-defaults-for-everything"><span class="octicon octicon-link"></span></a>Reasonable defaults for everything</h2>
+<h3>
+<a name="reasonable-defaults-for-everything" class="anchor" href="#reasonable-defaults-for-everything"><span class="octicon octicon-link"></span></a>Reasonable defaults for everything</h3>
 
 <p>A file-name without a column-number will cause the <em>last</em> specified
 column-number to be reused.</p>
@@ -238,8 +272,8 @@ overriden using <code>-T &lt;sep&gt;</code> (or -S, or -D).  This is chosen
 as a mnemonic: lowercase options are for input delimiters, while
 the respective upper-case options are for output delimiters.</p>
 
-<h2>
-<a name="require-minimal-typing-from-the-user" class="anchor" href="#require-minimal-typing-from-the-user"><span class="octicon octicon-link"></span></a>Require minimal typing from the user</h2>
+<h3>
+<a name="require-minimal-typing-from-the-user" class="anchor" href="#require-minimal-typing-from-the-user"><span class="octicon octicon-link"></span></a>Require minimal typing from the user</h3>
 
 <p>In addition to having reasonable defaults, <code>cuts</code> doesn't force you
 to type more than needed, or enforce an order of arguments on you.
@@ -247,7 +281,7 @@ It tries to be as minimalist as possible in its requirements from the user.
 Compare one of the simplest and most straightforward examples of
 extracting 3 columns from a single file:</p>
 
-<pre><code># -- the traditional cut way:
+<pre><code># -- the traditional, cut way:
 $ cut -d, -f 1,2,3 file.csv
 
 # -- the cuts way: shorter &amp; sweeter:
@@ -257,8 +291,8 @@ $ cuts file.csv 0 1 2
 <p>Minimal typing is also what guided the decision to include the
 functionality of <code>paste</code> in <code>cuts</code>.</p>
 
-<h2>
-<a name="input-flexibility--tolerance-to-missing-data" class="anchor" href="#input-flexibility--tolerance-to-missing-data"><span class="octicon octicon-link"></span></a>Input flexibility &amp; tolerance to missing data</h2>
+<h3>
+<a name="input-flexibility--tolerance-to-missing-data" class="anchor" href="#input-flexibility--tolerance-to-missing-data"><span class="octicon octicon-link"></span></a>Input flexibility &amp; tolerance to missing data</h3>
 
 <p>One thing that <code>cuts</code> does is try and be completely tolerant
 and supportive to cases of missing data.  If you try to paste two columns,
@@ -340,6 +374,31 @@ Usage: cuts [Options] [Column_Specs]...
 
         cuts f1 0 -1 f2         1st &amp; last columns from f1
                                 + last column (last colno seen) from f2
+</code></pre>
+
+<h2>
+<a name="further-configuration--customization" class="anchor" href="#further-configuration--customization"><span class="octicon octicon-link"></span></a>Further configuration &amp; customization</h2>
+
+<p>If you don't like <code>cuts</code> defaults, you can override them in
+an optional personal configuration ~/.cuts.pl</p>
+
+<p>If this file exists, cuts will read it during startup allowing you
+override cuts default parameters, in particular the value of
+the <code>$ICS</code> input-column separator regex.  The syntax of this
+file is perl:</p>
+
+<pre><code>     # -- Alternative file:colno char separators
+     our $FCsep = ':;,#';
+
+     # -- Default input column separator (smart)
+     our $ICS = '(?:\s*,\s*|\s+)';
+
+     # -- Default output column separator
+     our $OCS = "\t";
+
+     # -- if you use a config file, you must end it with 1;
+     # -- so executing it by cuts using perl 'do' succeeds.
+     1;
 </code></pre>
 
 <h2>
