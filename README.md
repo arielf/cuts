@@ -202,7 +202,7 @@ straight-forward with `cuts`:
 
 ```
 #
-# -- Example file, not that Mary doesn't have a midinitial
+# -- Example file, Mary doesn't have a middle-initial
 #
 $ cat t.complex
 firstname  midinitial lastname    phone-number   Age
