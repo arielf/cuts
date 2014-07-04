@@ -21,18 +21,29 @@ use vars qw($opt_v
             $opt_s $opt_d $opt_t
             $opt_S $opt_D $opt_T);
 
-# Alternative file:colno char separators
-my $FCsep = ':;,#';
+my $ConfigFile = "$ENV{HOME}/.cuts.pl";
 
-# Default input column separator (smart)
-my $ICS = '(?:\s*,\s*|\s+)';
-# Default output column separator
-my $OCS = "\t";
+# ----- CONFIGURATION SECTION START -----
+# ----- You may copy and change these values in your personal $ConfigFile
+
+# -- Alternative file:colno char separators
+our $FCsep = ':;,#';
+
+# -- Default input column separator (smart)
+our $ICS = '(?:\s*,\s*|\s+)';
+# -- Default output column separator
+our $OCS = "\t";
+# -- if you use a config file, you must end it with 1;
+# -- so executing it with 'do' succeeds
+1;
+
+# ----- CONFIGURATION SECTION END -----
 
 # -- names of files to extract columns from, may repeat
 my @Files = ();
 # -- Corresponding column number for each file entry
-my @ColNos;
+my @ColNos = ();
+
 # -- Corresponding column separator for each file entry
 my @ColSep;     # per file separator support - not yet implemented
 
@@ -116,6 +127,10 @@ sub get_args {
         }
     }
     getopts('vd:t:s:D:T:S:');
+    if (-e $ConfigFile) {
+        v("Found config file: %s\n", $ConfigFile);
+        do $ConfigFile || die "$0: $ConfigFile: $@\n";
+    }
 
     if ($opt_t || $opt_d || $opt_s) {
         $ICS = ($opt_t || $opt_d || $opt_s);
@@ -178,15 +193,28 @@ my @FDS = ();
 
 sub get_fields() {
     my @fields = ();
-    my $col_idx = -1;
-    foreach my $fd (@FDS) {
-        $col_idx++;
-        next if (eof($fd));
+    # shared/repeat file descriptiors
+    my %cur_line = ();
 
-        my $line = <$fd>;
-        chomp($line);
-        my $colno = $ColNos[$col_idx];
-        my $f = (split($ICS, $line))[$colno];
+    v("get_fields: \@FDS=(@FDS)\n");
+
+    for (my $i = 0; $i < scalar(@FDS); $i++) {
+        my $fd = $FDS[$i];
+        my $colno = $ColNos[$i];
+
+        # v("\tget_fields: inside loop FD[$i]: \$fd='$fd'\n");
+
+        unless (exists $cur_line{$fd}) {
+            next if (eof($fd));
+
+            $cur_line{$fd} = <$fd>;
+            chomp($cur_line{$fd});
+            # v("\tget_fields: 1st line read: %s\n", $cur_line{$fd});
+        }
+        # otherwise, we reuse the line
+        my $line = $cur_line{$fd};
+        my $f = (split(/$ICS/, $line))[$colno];
+        # v("\tget_fields: \$f: line[$colno]: $f\n");
         $f = '' unless (defined $f);
         push(@fields, $f);
     }
@@ -194,11 +222,23 @@ sub get_fields() {
 }
 
 sub print_cols() {
+    my %file_2_fh = ();
+
     for (my $i = 0; $i < @Files; $i++) {
-        open($FDS[$i], $Files[$i]) ||
-            die "$0: can't open: $Files[$i]: $!\n";
+        my $filename = $Files[$i];
+
+        if (exists $file_2_fh{$filename}) {
+            # -- repeat files or multi-column to same file, open once
+            $FDS[$i] = $file_2_fh{$filename};
+        } else {
+            open(my $fd, $filename) ||
+                die "$0: can't open: $filename: $!\n";
+            $FDS[$i] = $fd;
+            $file_2_fh{$filename} = $fd;
+        }
     }
 
+    # Reading and printing loop
     while (my @fields = get_fields()) {
         print join($OCS, @fields), "\n";
     }
@@ -287,6 +327,28 @@ cases this isn't needed.
 =head1 AUTHOR
 
 Ariel Faigon
+
+=head1 FILES
+
+Optional personal configuration ~/.cuts.pl
+
+If this file exists, cuts will read it during startup allowing
+you override cuts default parameters, in particular the value of the
+$ICS input-column separator regex.  The syntax of this file is:
+
+    # -- Alternative file:colno char separators
+    our $FCsep = ':;,#';
+
+    # -- Default input column separator (smart)
+    our $ICS = '(?:\s*,\s*|\s+)';
+
+    # -- Default output column separator
+    our $OCS = "\t";
+
+    # -- if you use a config file, you must end it with 1;
+    # -- so executing it by cuts using perl 'do' succeeds.
+    1;
+
 
 =head1 SEE ALSO
 

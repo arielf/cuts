@@ -1,0 +1,55 @@
+#!/usr/bin/perl -w
+#
+# Bare-bones test suite for cuts
+# Add more tests in tests/tests.spec
+#
+$ENV{'PATH'} = ".:..:/bin:/usr/bin";
+
+my $TestNo = 0;
+my $Fails = 0;
+my $OKs = 0;
+
+printf "cuts is: %s", `which cuts`;
+
+while (<>) {
+    # skip comments and empty lines
+    next if (/^\s*#/);
+    next unless (/\w/);
+
+    s/\s+$//;
+
+    my ($cmd, $ref) = split(/\s{3,}/);
+
+    $TestNo++;
+
+    printf "Test %03d:\t%-40s\t", $TestNo, $cmd;
+
+    unless (-f $ref) {
+        print "$ref: $!\n";
+        $Fails++;
+        next;
+    }
+
+    system("$cmd > tmp.out");
+    if ($?) {
+        print "FAIL ($!)\n";
+        next;
+    }
+    system("diff '$ref' tmp.out >tmp.diff");
+    if ($?) {
+        print "FAIL (diff follows)\n";
+        print `cat tmp.diff`;
+        $Fails++;
+    } else {
+        print "OK\n";
+        $OKs++;
+    }
+}
+
+unlink 'tmp.out', 'tmp.diff';
+
+printf "Summary: %d tests, %d successful (%.2f%% OK)\n",
+    $TestNo, $OKs, 100.0*$OKs/$TestNo;
+
+exit $Fails;
+
