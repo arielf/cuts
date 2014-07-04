@@ -74,7 +74,19 @@ $ cuts 1 012.txt
 #### `cut` doesn't support perl style regex delimiters
 
 when your delimiter is a bit more complex (say, any sequence of non-digits)
-you're out-of-luck.
+you're out-of-luck:
+
+```
+$ cat 012.regex
+0-----1-------2
+0 ## 1 #### 2
+0 aa 1 bbbbbbb 2
+
+$ cuts -d '[^0-9]+' 1 012.regex
+1
+1
+1
+```
 
 #### `cut` doesn't support negative (from end) column numbers
 
@@ -82,6 +94,13 @@ This is very useful when you have, say 257 fields (but you haven't counted
 them, so you don't really know), and you're interested in the last field,
 or the one before the last etc.
 
+```
+$ cuts -1 012.txt
+2
+2
+2
+
+```
 #### `cut` doesn't support changing order of columns
 
 It ignores the order requested by the user and always force-prints
@@ -207,7 +226,7 @@ Compare one of the simplest and most straightforward examples of
 extracting 3 columns from a single file:
 
 ```
-# -- the traditional cut way:
+# -- the traditional, cut way:
 $ cut -d, -f 1,2,3 file.csv
 
 # -- the cuts way: shorter & sweeter:
@@ -301,6 +320,31 @@ Usage: cuts [Options] [Column_Specs]...
 
         cuts f1 0 -1 f2         1st & last columns from f1
                                 + last column (last colno seen) from f2
+```
+
+## Further configuration & customization
+
+If you don't like `cuts` defaults, you can override them in
+an optional personal configuration ~/.cuts.pl
+
+If this file exists, cuts will read it during startup allowing you
+override cuts default parameters, in particular the value of
+the `$ICS` input-column separator regex.  The syntax of this
+file is perl:
+
+```
+     # -- Alternative file:colno char separators
+     our $FCsep = ':;,#';
+
+     # -- Default input column separator (smart)
+     our $ICS = '(?:\s*,\s*|\s+)';
+
+     # -- Default output column separator
+     our $OCS = "\t";
+
+     # -- if you use a config file, you must end it with 1;
+     # -- so executing it by cuts using perl 'do' succeeds.
+     1;
 ```
 
 ## TODO items (contributions welcome)
