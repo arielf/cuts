@@ -74,7 +74,8 @@ $ cuts 1 012.txt
 #### `cut` doesn't support perl style regex delimiters
 
 when your delimiter is a bit more complex (say, any sequence of non-digits)
-you're out-of-luck:
+you're out-of-luck. `cuts` fixes this by allowing you to specify any
+perl regular-expression (regexp) as the delimiter:
 
 ```
 $ cat 012.regex
@@ -82,6 +83,7 @@ $ cat 012.regex
 0 ## 1 #### 2
 0 aa 1 bbbbbbb 2
 
+# -- delimiter is any non-empty sequence of non-digits
 $ cuts -d '[^0-9]+' 1 012.regex
 1
 1
@@ -90,9 +92,10 @@ $ cuts -d '[^0-9]+' 1 012.regex
 
 #### `cut` doesn't support negative (from end) column numbers
 
-This is very useful when you have, say 257 fields (but you haven't counted
+This is very useful when you have, say, 257 fields (but you haven't counted
 them, so you don't really know), and you're interested in the last field,
-or the one before the last etc.  `cuts` does:
+or the one before the last etc.  `cuts` supports negative offsets
+from the end:
 
 ```
 $ cuts -1 012.txt
@@ -109,7 +112,7 @@ the fields in order from low to high:
 
 ```
 #
-# cut can't change the order
+# -- cut can't change the order
 #
 $ cut -f3,2,1 file.tsv
 0	1	2
