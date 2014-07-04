@@ -69,9 +69,10 @@ $ cuts 0 test.dat
 <code>cut</code> doesn't do the automatic side-by-side pasting</h4>
 
 <pre><code>#
-# -- cut fails all the way on this simple example
-#    Not only there's no way to mix delimiters,
-#    cut doesn't do side-by-side pasting at all:
+# -- From a user PoV, cut "fails" all the way on this simple example
+#    There's no way to mix delimiters (a common case for diverse data)
+#    and cut doesn't do side-by-side pasting at all which requires
+#    a separate utility like "paste".
 #
 $ cut -d, -f2 test.csv test.tsv
 1
@@ -95,8 +96,9 @@ $ cuts 1 test.csv test.tsv
 <code>cut</code> doesn't support multi-char column delimiters</h4>
 
 <p>in particular, it can't deal with the most common case of any
-white-space sequence</p>
+white-space sequence:</p>
 
+<pre><code></code></pre>
 <h4>
 <a name="cut-doesnt-support-perl-style-regex-delimiters" class="anchor" href="#cut-doesnt-support-perl-style-regex-delimiters"><span class="octicon octicon-link"></span></a>
 <code>cut</code> doesn't support perl style regex delimiters</h4>
@@ -199,6 +201,13 @@ the human interface <em>as simple and minimalist as possible</em></p>
 
 <p><code>cuts</code> also supports <code>-</code> as a handy alias for <code>stdin</code>.</p>
 
+<h1>
+<a name="cuts-design-principles" class="anchor" href="#cuts-design-principles"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> design principles</h1>
+
+<p>The following are the principles which guide the design decisions of
+cuts.</p>
+
 <h2>
 <a name="reasonable-defaults-for-everything" class="anchor" href="#reasonable-defaults-for-everything"><span class="octicon octicon-link"></span></a>Reasonable defaults for everything</h2>
 
@@ -245,8 +254,11 @@ $ cut -d, -f 1,2,3 file.csv
 $ cuts file.csv 0 1 2
 </code></pre>
 
+<p>Minimal typing is also what guided the decision to include the
+functionality of <code>paste</code> in <code>cuts</code>.</p>
+
 <h2>
-<a name="input-flexibility-and-tolerance-to-missing-data" class="anchor" href="#input-flexibility-and-tolerance-to-missing-data"><span class="octicon octicon-link"></span></a>Input flexibility and tolerance to missing data</h2>
+<a name="input-flexibility--tolerance-to-missing-data" class="anchor" href="#input-flexibility--tolerance-to-missing-data"><span class="octicon octicon-link"></span></a>Input flexibility &amp; tolerance to missing data</h2>
 
 <p>One thing that <code>cuts</code> does is try and be completely tolerant
 and supportive to cases of missing data.  If you try to paste two columns,
@@ -336,11 +348,7 @@ Usage: cuts [Options] [Column_Specs]...
 <p>I made no effort to make <code>cuts</code> fast.  Although compared to the
 I/O overhead, there may be not much need for it.  If you have ideas
 on how to make the column extractions and joining more efficient,
-that would be welcome.  In particular, if you extract multiple columns
-from the same file, the current implementation opens it mutiple times,
-just for the sake of siimplicity and generalization.  Although the
-buffer cache should ensure that physical IO is avoided, having this
-implemented more efficiently, would be nice.</p>
+that would be welcome.</p>
 
 <p>Per file column input delimiters.  I haven't had the need so far so
 that took a back-seat in priority.  The most common case of
