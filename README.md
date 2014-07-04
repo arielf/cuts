@@ -36,12 +36,20 @@ As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st column.
 #### `cuts` supports mixed input delimiters (e.g. both CSV and TSV)
 ```
 #
+# -- a file with mixed delimiters
+#
+0,1,2
+0 1 2
+0	1	2
+
+#
 # -- cut doesn't "cut it":
 #
 cut -f2 t.mixed
 0,1,2
 0 1 2
 1
+
 #
 # -- cuts does:
 #
