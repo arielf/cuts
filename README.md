@@ -7,13 +7,11 @@ cuts
 extract columns from files.  Unfortunately, despite its usefulness
 and great popularity, it is pretty limited in power.
 
-Many questions on [stackoverflow][1] suggest that the same
-pain-points of the standard `cut` are felt by many users.
+Many <a href="http://stackoverflow.com/questions/tagged/cut">questions on stackoverflow</a>
+suggest that the same pain-points of the standard `cut` are felt by many users.
 
 The following list demonstrates what is missing in `cut` and why
 I felt the need to write `cuts`:
-
-[1] http://stackoverflow.com/questions/tagged/cut
 
 #### `cuts` automatically detects the file input column delimiter:
 ```
