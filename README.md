@@ -57,18 +57,50 @@ in particular, it can't deal with the most common case of any
 white-space sequence:
 
 ```
+$ cat 012.txt
+0  1  2
+0   1   2
+0    1     2
+$ cut -d' ' -f2 012.txt
+
+
+
+$ cuts 1 012.txt
+1
+1
+1
 ```
 
 #### `cut` doesn't support perl style regex delimiters
 
 when your delimiter is a bit more complex (say, any sequence of non-digits)
-you're out-of-luck.
+you're out-of-luck:
+
+```
+$ cat 012.regex
+0-----1-------2
+0 ## 1 #### 2
+0 aa 1 bbbbbbb 2
+
+$ cuts -d '[^0-9]+' 1 012.regex
+1
+1
+1
+```
 
 #### `cut` doesn't support negative (from end) column numbers
 
 This is very useful when you have, say 257 fields (but you haven't counted
 them, so you don't really know), and you're interested in the last field,
-or the one before the last etc.
+or the one before the last etc.  `cuts` does:
+
+```
+$ cuts -1 012.txt
+2
+2
+2
+
+```
 
 #### `cut` doesn't support changing order of columns
 
@@ -76,6 +108,9 @@ It ignores the order requested by the user and always force-prints
 the fields in order from low to high:
 
 ```
+#
+# cut can't change the order
+#
 $ cut -f3,2,1 file.tsv
 0	1	2
 0	1	2
@@ -84,7 +119,7 @@ $ cut -f3,2,1 file.tsv
 #
 # -- compare to cuts, which does exactly what you want:
 #
-cuts 2 1 0 file.tsv 
+$ cuts 2 1 0 file.tsv 
 2	1	0
 2	1	0
 2	1	0
@@ -151,12 +186,12 @@ the human interface _as simple and minimalist as possible_
 `cuts` also supports `-` as a handy alias for `stdin`.
 
 
-# `cuts` design principles
+## `cuts` design principles
 
 The following are the principles which guide the design decisions of
 cuts.
 
-## Reasonable defaults for everything
+### Reasonable defaults for everything
 
 A file-name without a column-number will cause the *last* specified
 column-number to be reused.
@@ -186,7 +221,7 @@ overriden using `-T <sep>` (or -S, or -D).  This is chosen
 as a mnemonic: lowercase options are for input delimiters, while
 the respective upper-case options are for output delimiters.
 
-## Require minimal typing from the user
+### Require minimal typing from the user
 
 In addition to having reasonable defaults, `cuts` doesn't force you
 to type more than needed, or enforce an order of arguments on you.
@@ -195,7 +230,7 @@ Compare one of the simplest and most straightforward examples of
 extracting 3 columns from a single file:
 
 ```
-# -- the traditional cut way:
+# -- the traditional, cut way:
 $ cut -d, -f 1,2,3 file.csv
 
 # -- the cuts way: shorter & sweeter:
@@ -206,7 +241,7 @@ Minimal typing is also what guided the decision to include the
 functionality of `paste` in `cuts`.
 
 
-## Input flexibility & tolerance to missing data
+### Input flexibility & tolerance to missing data
 
 One thing that `cuts` does is try and be completely tolerant
 and supportive to cases of missing data.  If you try to paste two columns,
@@ -289,6 +324,31 @@ Usage: cuts [Options] [Column_Specs]...
 
         cuts f1 0 -1 f2         1st & last columns from f1
                                 + last column (last colno seen) from f2
+```
+
+## Further configuration & customization
+
+If you don't like `cuts` defaults, you can override them in
+an optional personal configuration ~/.cuts.pl
+
+If this file exists, cuts will read it during startup allowing you
+override cuts default parameters, in particular the value of
+the `$ICS` input-column separator regex.  The syntax of this
+file is perl:
+
+```
+     # -- Alternative file:colno char separators
+     our $FCsep = ':;,#';
+
+     # -- Default input column separator (smart)
+     our $ICS = '(?:\s*,\s*|\s+)';
+
+     # -- Default output column separator
+     our $OCS = "\t";
+
+     # -- if you use a config file, you must end it with 1;
+     # -- so executing it by cuts using perl 'do' succeeds.
+     1;
 ```
 
 ## TODO items (contributions welcome)
