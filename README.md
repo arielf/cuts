@@ -285,6 +285,7 @@ $ cuts
 Usage: cuts [Options] [Column_Specs]...
     Options:
         -v              verbose (mostly for debugging)
+        -0              Don't use the default 0-based indexing, use 1-based
 
         Input column delimiter options (lowercase):
         -d <sep>        Use <sep> (perl regexp) as column delimiter
@@ -307,7 +308,7 @@ Usage: cuts [Options] [Column_Specs]...
 
         If omitted:
             Default file is /dev/stdin
-            Default colno is 0
+            Default colno is 0 (or 1 if 1-based indexing is in effect)
 
     Examples:
         cuts 0 file1 file2      1st (0) column from both files
@@ -337,6 +338,11 @@ the `$ICS` input-column separator regex.  The syntax of this
 file is perl:
 
 ```
+     # -- If you prefer 1-based indexing, by default, set this to 1
+     #    You may also set it from the command-line with the
+     #    -0 option.
+     our $opt_0 = 0;
+
      # -- Alternative file:colno char separators
      our $FCsep = ':;,#';
 
