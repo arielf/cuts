@@ -4,10 +4,16 @@ cuts
 ***cuts***: Unix/POSIX `cut` (and `paste`) on (s)teroids.
 
 `cut` is a very useful Unix (and POSIX standard) utility designed to
-extract columns from files.  Unfortunately, it is pretty limited in power.
+extract columns from files.  Unfortunately, despite its usefulness
+and great popularity, it is pretty limited in power.
+
+Many questions on [stackoverflow][1] suggest that the same
+pain-points of the standard `cut` are felt by many users.
 
 The following list demonstrates what is missing in `cut` and why
 I felt the need to write `cuts`:
+
+[1] http://stackoverflow.com/questions/tagged/cut
 
 #### `cuts` automatically detects the file input column delimiter:
 ```
@@ -30,30 +36,59 @@ $ cuts 0 test.dat
 As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st column.
 
 #### `cuts` supports mixed input delimiters (e.g. both CSV and TSV)
+```
+#
+# -- cut doesn't "cut it":
+#
+cut -f2 t.mixed
+0,1,2
+0 1 2
+1
+#
+# -- cuts does:
+#
+$ cuts 1 t.mixed
+1
+1
+1
+```
+
 #### `cuts` does automatic side-by-side pasting
 
 ```
 #
-# -- From a user PoV, cut "fails" all the way on this simple example
-#    There's no way to mix delimiters (a common case for diverse data)
-#    and cut doesn't do side-by-side pasting at all which requires
-#    a separate utility like "paste".
+# -- cut doesn't output columns side-by-side when reading from
+#    multiple input files, even though this is the most useful
+#    and expected thing to do.
+#    (It requires a separate utility like "paste")
 #
-$ cut -d, -f2 test.csv test.tsv
-1
-1
-1
-0	1	2
-0	1	2
-0	1	2
 
 #
-# -- compare to cuts (auto-detect mixed delimiters & side-by-side printing):
+# -- a simple example input
 #
-$ cuts 1 test.csv test.tsv
+$ cat t.tsv
+0	1	2
+a	b	c
+X	Y	Z
+
+#
+# -- cut does one file at a time:
+#
+$ cut -f2 t.tsv t.tsv
+1
+b
+Y
+1
+b
+Y
+
+#
+# -- cuts does automatic side-by-side printing:
+#
+$ cuts 1 t.tsv t.tsv
 1	1
-1	1
-1	1
+b	b
+Y	Y
 ```
 
 #### `cuts` supports multi-char column delimiters
@@ -152,7 +187,30 @@ $ cuts 2 1 0 file.tsv
 2	1	0
 ```
 
-#### `cuts` is flexible when it comes to variable number of columns in the input
+#### `cuts` is more powerful dealing with variable number of columns:
+
+The ability to offset from the end of line, in combination with the
+ability to specify perl regular expressions as delimiters makes some
+jobs that would require writing specialized scripts,
+straight-forward with `cuts`:
+
+```
+#
+# -- Example file, not that Mary doesn't have a midinitial
+#
+$ cat t.complex
+firstname  midinitial lastname    phone-number   Age
+John       T.         Public      555-5555       35
+Mary                  Joe         444-5555       27
+
+#
+# -- Want the phone-number? It's easy with cuts
+#
+$ cuts t.complex -2
+phone-number
+555-5555
+444-5555
+```
 
 #### `cuts` is forgiving if you accidentally use `-t` (like `sort` does)
 
@@ -164,7 +222,7 @@ you think "separator" instead of "delimiter" - it still works
 
 #### `cuts` requires minimal typing for simple column extraction tasks
 
-`cut` is hader to use and less friendly becuase it doesn't support
+`cut` is hader to use and less friendly because it doesn't support
 reasonable defaults. For example:
 
 ```
@@ -200,7 +258,17 @@ Compare the above to the much simpler, and more intuitive, `cuts` version,
 which works right out of the box, in any shell:
 
 ```
+$ cat file.tsv
+0	1	2
+a	b	c
+
+$ cat file.csv
+0,1,2
+a,b,c
+
 $ cuts file.csv 0 file.tsv 1
+0	1
+a	b
 ```
 
 
