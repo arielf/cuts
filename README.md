@@ -186,12 +186,12 @@ the human interface _as simple and minimalist as possible_
 `cuts` also supports `-` as a handy alias for `stdin`.
 
 
-# `cuts` design principles
+## `cuts` design principles
 
 The following are the principles which guide the design decisions of
 cuts.
 
-## Reasonable defaults for everything
+### Reasonable defaults for everything
 
 A file-name without a column-number will cause the *last* specified
 column-number to be reused.
@@ -221,7 +221,7 @@ overriden using `-T <sep>` (or -S, or -D).  This is chosen
 as a mnemonic: lowercase options are for input delimiters, while
 the respective upper-case options are for output delimiters.
 
-## Require minimal typing from the user
+### Require minimal typing from the user
 
 In addition to having reasonable defaults, `cuts` doesn't force you
 to type more than needed, or enforce an order of arguments on you.
@@ -241,7 +241,7 @@ Minimal typing is also what guided the decision to include the
 functionality of `paste` in `cuts`.
 
 
-## Input flexibility & tolerance to missing data
+### Input flexibility & tolerance to missing data
 
 One thing that `cuts` does is try and be completely tolerant
 and supportive to cases of missing data.  If you try to paste two columns,
