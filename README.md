@@ -92,7 +92,7 @@ $ cuts -d '[^0-9]+' 1 012.regex
 
 This is very useful when you have, say 257 fields (but you haven't counted
 them, so you don't really know), and you're interested in the last field,
-or the one before the last etc.
+or the one before the last etc.  `cuts` does:
 
 ```
 $ cuts -1 012.txt
@@ -101,12 +101,16 @@ $ cuts -1 012.txt
 2
 
 ```
+
 #### `cut` doesn't support changing order of columns
 
 It ignores the order requested by the user and always force-prints
 the fields in order from low to high:
 
 ```
+#
+# cut can't change the order
+#
 $ cut -f3,2,1 file.tsv
 0	1	2
 0	1	2
@@ -115,7 +119,7 @@ $ cut -f3,2,1 file.tsv
 #
 # -- compare to cuts, which does exactly what you want:
 #
-cuts 2 1 0 file.tsv 
+$ cuts 2 1 0 file.tsv 
 2	1	0
 2	1	0
 2	1	0
