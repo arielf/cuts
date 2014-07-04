@@ -117,13 +117,15 @@ $ cuts 1 012.txt
 <code>cut</code> doesn't support perl style regex delimiters</h4>
 
 <p>when your delimiter is a bit more complex (say, any sequence of non-digits)
-you're out-of-luck:</p>
+you're out-of-luck. <code>cuts</code> fixes this by allowing you to specify any
+perl regular-expression (regexp) as the delimiter:</p>
 
 <pre><code>$ cat 012.regex
 0-----1-------2
 0 ## 1 #### 2
 0 aa 1 bbbbbbb 2
 
+# -- delimiter is any non-empty sequence of non-digits
 $ cuts -d '[^0-9]+' 1 012.regex
 1
 1
@@ -134,9 +136,10 @@ $ cuts -d '[^0-9]+' 1 012.regex
 <a name="cut-doesnt-support-negative-from-end-column-numbers" class="anchor" href="#cut-doesnt-support-negative-from-end-column-numbers"><span class="octicon octicon-link"></span></a>
 <code>cut</code> doesn't support negative (from end) column numbers</h4>
 
-<p>This is very useful when you have, say 257 fields (but you haven't counted
+<p>This is very useful when you have, say, 257 fields (but you haven't counted
 them, so you don't really know), and you're interested in the last field,
-or the one before the last etc.  <code>cuts</code> does:</p>
+or the one before the last etc.  <code>cuts</code> supports negative offsets
+from the end:</p>
 
 <pre><code>$ cuts -1 012.txt
 2
@@ -153,7 +156,7 @@ or the one before the last etc.  <code>cuts</code> does:</p>
 the fields in order from low to high:</p>
 
 <pre><code>#
-# cut can't change the order
+# -- cut can't change the order
 #
 $ cut -f3,2,1 file.tsv
 0   1   2
@@ -179,14 +182,16 @@ $ cuts 2 1 0 file.tsv
 
 <p>It is unfortunate that the Unix toolset is so inconsistent in the
 choice of option-letters.  <code>cuts</code> solves this by allowing 'any of
-the above'.</p>
+the above'. So if you accidentally use <code>-s</code> instead of <code>-d</code> because
+you think "separator" instead of "delimiter" - it still works
+(and <code>-t</code>, which is used by <code>sort</code>, works just as well).</p>
 
 <h4>
 <a name="cut-requires-too-much-typing-for-simple-column-extraction-tasks" class="anchor" href="#cut-requires-too-much-typing-for-simple-column-extraction-tasks"><span class="octicon octicon-link"></span></a>
 <code>cut</code> requires too much typing for simple column extraction tasks</h4>
 
 <p>This is mostly because <code>cut</code> doesn't support reasonable defaults.
-It'll result in errors when arguments are missing:</p>
+So <code>cut</code> errors when arguments are missing:</p>
 
 <pre><code>    $ cut -d, example.csv
     cut: you must specify a list of bytes, characters, or fields
@@ -207,7 +212,7 @@ It'll result in errors when arguments are missing:</p>
 
 <p>Obviously with the power of the <code>bash</code> shell you can do stuff like:</p>
 
-<pre><code>    $ paste &lt;(cut -d, -f1 file.csv) &lt;(cut -d"\t" -f2 file.tsv)
+<pre><code>    $ paste &lt;(cut -d, -f1 file.csv) &lt;(cut -d"&lt;TAB&gt;" -f2 file.tsv)
 </code></pre>
 
 <p>but that requires too much typing (3 commands &amp; shell-magic),
