@@ -50,8 +50,9 @@ cuts -1 0 inp/012-5-lines.csv inp/012.tsv           ref/20-missing.tsv
 echo 0 1 2 3 4 5 | cuts - 1                         ref/1-1-line.tsv
 echo 0 1 2 3 4 | cuts 1                             ref/1-1-line.tsv
 
-# Bug: repeats and multies on stdin don't work yet
+# repeats and multies on stdin
 echo 0 1 2 3 4 | cuts 1 1 0                         ref/110-1-line.tsv
 cat inp/012.tsv | cuts 1 2 0                        ref/120-3-lines.tsv
+cat inp/012.tsv | cuts - 1 2 0 - 2 1                ref/12021.tsv
 
 
