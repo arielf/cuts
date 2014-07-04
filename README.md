@@ -29,9 +29,10 @@ As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st column.
 
 ```
 #
-# -- cut fails all the way on this simple example
-#    Not only there's no way to mix delimiters,
-#    cut doesn't do side-by-side pasting at all:
+# -- From a user PoV, cut "fails" all the way on this simple example
+#    There's no way to mix delimiters (a common case for diverse data)
+#    and cut doesn't do side-by-side pasting at all which requires
+#    a separate utility like "paste".
 #
 $ cut -d, -f2 test.csv test.tsv
 1
@@ -53,7 +54,10 @@ $ cuts 1 test.csv test.tsv
 #### `cut` doesn't support multi-char column delimiters
 
 in particular, it can't deal with the most common case of any
-white-space sequence
+white-space sequence:
+
+```
+```
 
 #### `cut` doesn't support perl style regex delimiters
 
@@ -147,6 +151,11 @@ the human interface _as simple and minimalist as possible_
 `cuts` also supports `-` as a handy alias for `stdin`.
 
 
+# `cuts` design principles
+
+The following are the principles which guide the design decisions of
+cuts.
+
 ## Reasonable defaults for everything
 
 A file-name without a column-number will cause the *last* specified
@@ -193,8 +202,11 @@ $ cut -d, -f 1,2,3 file.csv
 $ cuts file.csv 0 1 2
 ```
 
+Minimal typing is also what guided the decision to include the
+functionality of `paste` in `cuts`.
 
-## Input flexibility and tolerance to missing data
+
+## Input flexibility & tolerance to missing data
 
 One thing that `cuts` does is try and be completely tolerant
 and supportive to cases of missing data.  If you try to paste two columns,
@@ -284,11 +296,7 @@ Usage: cuts [Options] [Column_Specs]...
 I made no effort to make `cuts` fast.  Although compared to the
 I/O overhead, there may be not much need for it.  If you have ideas
 on how to make the column extractions and joining more efficient,
-that would be welcome.  In particular, if you extract multiple columns
-from the same file, the current implementation opens it mutiple times,
-just for the sake of siimplicity and generalization.  Although the
-buffer cache should ensure that physical IO is avoided, having this
-implemented more efficiently, would be nice.
+that would be welcome.
 
 Per file column input delimiters.  I haven't had the need so far so
 that took a back-seat in priority.  The most common case of

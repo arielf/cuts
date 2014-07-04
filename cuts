@@ -32,7 +32,8 @@ my $OCS = "\t";
 # -- names of files to extract columns from, may repeat
 my @Files = ();
 # -- Corresponding column number for each file entry
-my @ColNos;
+my @ColNos = ();
+
 # -- Corresponding column separator for each file entry
 my @ColSep;     # per file separator support - not yet implemented
 
@@ -178,15 +179,28 @@ my @FDS = ();
 
 sub get_fields() {
     my @fields = ();
-    my $col_idx = -1;
-    foreach my $fd (@FDS) {
-        $col_idx++;
-        next if (eof($fd));
+    # shared/repeat file descriptiors
+    my %cur_line = ();
 
-        my $line = <$fd>;
-        chomp($line);
-        my $colno = $ColNos[$col_idx];
-        my $f = (split($ICS, $line))[$colno];
+    v("get_fields: \@FDS=(@FDS)\n");
+
+    for (my $i = 0; $i < scalar(@FDS); $i++) {
+        my $fd = $FDS[$i];
+        my $colno = $ColNos[$i];
+
+        # v("\tget_fields: inside loop FD[$i]: \$fd='$fd'\n");
+
+        unless (exists $cur_line{$fd}) {
+            next if (eof($fd));
+
+            $cur_line{$fd} = <$fd>;
+            chomp($cur_line{$fd});
+            # v("\tget_fields: 1st line read: %s\n", $cur_line{$fd});
+        }
+        # otherwise, we reuse the line
+        my $line = $cur_line{$fd};
+        my $f = (split(/$ICS/, $line))[$colno];
+        # v("\tget_fields: \$f: line[$colno]: $f\n");
         $f = '' unless (defined $f);
         push(@fields, $f);
     }
@@ -194,11 +208,23 @@ sub get_fields() {
 }
 
 sub print_cols() {
+    my %file_2_fh = ();
+
     for (my $i = 0; $i < @Files; $i++) {
-        open($FDS[$i], $Files[$i]) ||
-            die "$0: can't open: $Files[$i]: $!\n";
+        my $filename = $Files[$i];
+
+        if (exists $file_2_fh{$filename}) {
+            # -- repeat files or multi-column to same file, open once
+            $FDS[$i] = $file_2_fh{$filename};
+        } else {
+            open(my $fd, $filename) ||
+                die "$0: can't open: $filename: $!\n";
+            $FDS[$i] = $fd;
+            $file_2_fh{$filename} = $fd;
+        }
     }
 
+    # Reading and printing loop
     while (my @fields = get_fields()) {
         print join($OCS, @fields), "\n";
     }
