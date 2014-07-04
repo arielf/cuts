@@ -57,6 +57,18 @@ in particular, it can't deal with the most common case of any
 white-space sequence:
 
 ```
+$ cat 012.txt
+0  1  2
+0   1   2
+0    1     2
+$ cut -d' ' -f2 012.txt
+
+
+
+$ cuts 1 012.txt
+1
+1
+1
 ```
 
 #### `cut` doesn't support perl style regex delimiters
