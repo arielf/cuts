@@ -26,6 +26,10 @@ my $ConfigFile = "$ENV{HOME}/.cuts.pl";
 # ----- CONFIGURATION SECTION START -----
 # ----- You may copy and change these values in your personal $ConfigFile
 
+# -- If you prefer 1-based indexing, by default, set this to 1
+#    You may also set it from the command-line with the -0 option.
+our $opt_0 = 0;
+
 # -- Alternative file:colno char separators
 our $FCsep = ':;,#';
 
@@ -61,6 +65,7 @@ sub usage(@) {
     die "Usage: $0 [Options] [Column_Specs]...
     Options:
         -v              verbose (mostly for debugging)
+        -0              Don't use the default 0-based indexing, use 1-based.
 
         Input column separator options (lowercase):
           -d <sep>        Use <sep> (perl regexp) as column delimiter
@@ -88,7 +93,7 @@ sub usage(@) {
 
         If omitted:
             Default file is /dev/stdin
-            Default colno is 0
+            Default colno is 0 (or 1 if 1-based indexing is in effect)
 
     Examples:
         $0 0 file1 file2 file3      Extract & join 1st (0) column from the 3 files
@@ -121,12 +126,14 @@ sub get_args {
         my $arg = $ARGV[$i];
         # As long as we have args looking as options
         last unless ($arg =~ /^-/);
-        if ($arg =~ /^-\d*$/) {
+        if ($arg =~ /^-\d*$/ && $arg ne '-0') {
             splice(@ARGV, $i, 0, '--');
             last;
         }
     }
-    getopts('vd:t:s:D:T:S:');
+    getopts('v0d:t:s:D:T:S:');
+    $opt_0 = (defined($opt_0) && $opt_0);
+
     if (-e $ConfigFile) {
         v("Found config file: %s\n", $ConfigFile);
         do $ConfigFile || die "$0: $ConfigFile: $@\n";
@@ -213,6 +220,8 @@ sub get_fields() {
         }
         # otherwise, we reuse the line
         my $line = $cur_line{$fd};
+
+        --$colno if ($opt_0 && $colno > 0);
         my $f = (split(/$ICS/, $line))[$colno];
         # v("\tget_fields: \$f: line[$colno]: $f\n");
         $f = '' unless (defined $f);
@@ -294,6 +303,9 @@ supports:
 
 =head1 OPTIONS
 
+    -v              verbose (mostly for debugging)
+    -0              Don't use the default 0-based indexing, use 1-based.
+
 Input column separator options (lowercase):
     -d <sep>        Use <sep> (perl regexp) as column delimiter
     -t <sep>        Alias for -d
@@ -336,6 +348,10 @@ If this file exists, cuts will read it during startup allowing
 you override cuts default parameters, in particular the value of the
 $ICS input-column separator regex.  The syntax of this file is:
 
+    # -- If you prefer 1-based indexing, by default, set this to 1
+    #    You may also set it from the command-line with the -0 option.
+    our $opt_0 = 0;
+
     # -- Alternative file:colno char separators
     our $FCsep = ':;,#';
 
@@ -348,7 +364,6 @@ $ICS input-column separator regex.  The syntax of this file is:
     # -- if you use a config file, you must end it with 1;
     # -- so executing it by cuts using perl 'do' succeeds.
     1;
-
 
 =head1 SEE ALSO
 

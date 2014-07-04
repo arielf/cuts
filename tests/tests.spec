@@ -55,4 +55,7 @@ echo 0 1 2 3 4 | cuts 1 1 0                         ref/110-1-line.tsv
 cat inp/012.tsv | cuts 1 2 0                        ref/120-3-lines.tsv
 cat inp/012.tsv | cuts - 1 2 0 - 2 1                ref/12021.tsv
 
+# 1-based indexing
+cuts -0 1 2 inp/012.tsv                             ref/01.tsv
+
 
