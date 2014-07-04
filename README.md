@@ -134,12 +134,14 @@ $ cuts 2 1 0 file.tsv
 
 It is unfortunate that the Unix toolset is so inconsistent in the
 choice of option-letters.  `cuts` solves this by allowing 'any of
-the above'.
+the above'. So if you accidentally use `-s` instead of `-d` because
+you think "separator" instead of "delimiter" - it still works
+(and `-t`, which is used by `sort`, works just as well).
 
 #### `cut` requires too much typing for simple column extraction tasks
 
 This is mostly because `cut` doesn't support reasonable defaults.
-It'll result in errors when arguments are missing:
+So `cut` errors when arguments are missing:
 
 ```
     $ cut -d, example.csv
@@ -159,7 +161,7 @@ For example 2nd column from file1 and 3rd column from file2.
 
 Obviously with the power of the `bash` shell you can do stuff like:
 ```
-    $ paste <(cut -d, -f1 file.csv) <(cut -d"\t" -f2 file.tsv)
+    $ paste <(cut -d, -f1 file.csv) <(cut -d"<TAB>" -f2 file.tsv)
 ```
 
 but that requires too much typing (3 commands & shell-magic),
