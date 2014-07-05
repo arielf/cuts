@@ -617,24 +617,14 @@ is missing were much more critical for me when writing <code>cuts</code>.</p>
 <p>The most notable remaining issues with <code>cuts</code> are (IMHO):</p>
 
 <ul>
-<li><p>Ranges going from positive to negative offsets, e.g. 2--3
-are interpreted as in reverse order (because 2 &gt; -3).
-The result is a wrapped-around the beginning index-set
-This is good because is consistent with the symmetric
-wrap-around-the-end case of say, -3-2.  OTOH: it is bad because
-it is not the natural human-way of interpreting negative
-indexes as being higher (near the end of the line).</p></li>
-<li><p>Speed (vs compiled C)</p></li>
-<li>
-<p>Unexpected results if your data has tabs, spaces, and/or
-commas within fields.  This is a deliberate design decision
-(optimize for the most common case.) that can be easily worked-around.
-If you don't like the default, you can either:</p>
+<li>Ranges going from positive to negative offsets, e.g. <code>2--3</code> are interpreted as in reverse order (because 2 &gt; -3).  The result is a wrapped-around the beginning index-set.  This is good because is consistent with the symmetric wrap-around-the-end case of say, -3-2.  OTOH: it is bad because it is not the natural human-way of interpreting negative indexes as being higher (near the end of the line).</li>
+<li>Speed (vs compiled C)</li>
+<li>Unexpected results if your data has tabs, spaces, and/or commas within fields.  This is a deliberate design decision (optimize for the most common case.) that can be easily worked-around. If you don't like the default, you can either:
 
 <ul>
-<li>Pass a different delimiter using: -d 'regexp'</li>
-<li>Make your choice permanent via the personal config file
-<code>~/.cuts.pl</code> and the <code>$ICS</code> (Input Column Separator) variable.</li>
+<li>Pass a different delimiter using: <code>-d 'regexp'</code>
+</li>
+<li>Make your choice permanent via the personal config file <code>~/.cuts.pl</code> and the <code>$ICS</code> (Input Column Separator) variable.</li>
 </ul>
 </li>
 </ul><h2>
