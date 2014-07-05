@@ -228,7 +228,7 @@ you think "separator" instead of "delimiter" - it still works
 
 #### `cuts` requires minimal typing for simple column extraction tasks
 
-`cut` is hader to use and less friendly because it doesn't support
+`cut` is harder to use, and less friendly because it doesn't support
 reasonable defaults. For example:
 
 ```
