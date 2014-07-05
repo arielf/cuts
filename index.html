@@ -67,12 +67,15 @@ $ cuts 0 test.dat
 0
 </code></pre>
 
-<p>As you can see, I prefer zero-based indexing: by default, <code>cuts</code>
-uses the 0 index for the 1st column.</p>
+<p>As you can see, <code>cuts</code> uses zero-based indexing
+(index 0 means 1st column) by default. </p>
 
-<p>If you hate this default, there's no need to run away since you
-can easily change the defaults of <code>cuts</code> via a small config file
-which is read very early during runtime (read on).</p>
+<p>Accordingly, the examples below use 0-based indexing.</p>
+
+<p>If you prefer 1-based indexing, like <code>cut</code>, you may easily
+change the default either from the command line, or more
+permanently, via a small config file which is read very early during
+runtime (read on).</p>
 
 <h4>
 <a name="cuts-supports-mixed-input-delimiters-eg-both-csv-and-tsv" class="anchor" href="#cuts-supports-mixed-input-delimiters-eg-both-csv-and-tsv"><span class="octicon octicon-link"></span></a>
