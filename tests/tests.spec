@@ -87,5 +87,6 @@ cuts 2,-4--2 inp/1-20-wide.csv                      ref/2,-4--2.tsv
 # -4 .. 2 (wrap around the end, from negative to positive)
 cuts 2,-4-2 inp/1-20-wide.csv                       ref/2,-4-2.tsv
 
-
+# Negative direction wrap-around end
+cuts 2--1 inp/1-20-wide.csv                         ref/210--1.tsv
 
