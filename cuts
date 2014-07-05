@@ -110,7 +110,7 @@ sub usage(@) {
 
         $0 f1 0 -1 f2               1st & last columns from f1 & last column (last colno seen) from f2
 
-        $0 3,5-8 f1                 (3, 5, 6, 7, 8) columns from f1
+        $0 3,5-8 f1                 Columns (3, 5, 6, 7, 8) from f1
 
         $0 3,8-5 f1                 Same as above, but 5-8 in reverse order
 ";
@@ -143,7 +143,12 @@ sub expand_list($) {
             my @sub_list = $from .. $to;
             @sub_list =  reverse(@sub_list) if ($reverse_order);
             push(@list, @sub_list);
+            next;
         }
+        # silently allow empty items
+        # -- should we handle malformed lists here?
+        #    currently unneeded because correct syntax is ensured
+        #    in caller (via pattern-match).
     }
     v("expand_list(%s): (%s)\n", $spec, join(' ', @list));
     @list;
