@@ -31,12 +31,15 @@ $ cuts 0 test.dat
 0
 0
 ```
-As you can see, I prefer zero-based indexing: by default, `cuts`
-uses the 0 index for the 1st column.
+As you can see, `cuts` uses zero-based indexing
+(index 0 means 1st column) by default. 
 
-If you hate this default, there's no need to run away since you
-can easily change the defaults of `cuts` via a small config file
-which is read very early during runtime (read on).
+Accordingly, the examples below use 0-based indexing.
+
+If you prefer 1-based indexing, like `cut`, you may easily
+change the default either from the command line, or more
+permanently, via a small config file which is read very early during
+runtime (read on).
 
 #### `cuts` supports mixed input delimiters (e.g. both CSV and TSV)
 ```
