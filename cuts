@@ -130,7 +130,7 @@ sub expand_list($) {
             push(@list, $term);
             next;
         }
-        if ($term =~ /^(\d+)-(\d+)$/) {
+        if ($term =~ /^(-?\d+)-(-?\d+)$/) {
             my $reverse_order = 0;
             my ($from, $to) = ($1, $2);
             if ($from > $to) {
@@ -192,7 +192,7 @@ sub get_args {
 
     my $fc_pat = sprintf('^([^%s]+)[%s](-?[0-9]+)$', $FCsep, $FCsep);
     # v("fc_pat: %s\n", $fc_pat);
-    my $list_term_pat = '(?:\d+(?:-\d+)?|)';
+    my $list_term_pat = '(?:-?\d+(?:--?\d+)?|)';
     my $list_spec_pat = qr/^$list_term_pat(?:,$list_term_pat)*$/o;
 
     foreach my $arg (@ARGV) {

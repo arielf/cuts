@@ -69,11 +69,23 @@ cuts -s '\s+' -1 inp/012.tsv                        ref/2.tsv
 cuts -t '\s+' -1 inp/012.tsv                        ref/2.tsv
 
 # list spec expansions, incl 
-cuts 1-3,2,5-7 inp/1-20-wide.csv              ref/1-3,2,5-7.tsv
-cuts ,1-3,2,5-7 inp/1-20-wide.csv             ref/1-3,2,5-7.tsv
-cuts 1-3,,,2,5,6,7 inp/1-20-wide.csv          ref/1-3,2,5-7.tsv
+cuts 1-3,2,5-7 inp/1-20-wide.csv                    ref/1-3,2,5-7.tsv
+cuts ,1-3,2,5-7 inp/1-20-wide.csv                   ref/1-3,2,5-7.tsv
+cuts 1-3,,,2,5,6,7 inp/1-20-wide.csv                ref/1-3,2,5-7.tsv
 
-# list-spes w/ subset order-reversed
-cuts 1-3,,2,7-5, inp/1-20-wide.csv            ref/1-3,2,7-5.tsv
-cuts 1,2,3,2,7-5 inp/1-20-wide.csv            ref/1-3,2,7-5.tsv
+# list-specs w/ subset-order reversed
+cuts 1-3,,2,7-5, inp/1-20-wide.csv                  ref/1-3,2,7-5.tsv
+cuts 1,2,3,2,7-5 inp/1-20-wide.csv                  ref/1-3,2,7-5.tsv
+
+# list-specs w/ mixed positive and negative offsets
+cuts 2,-4--2 inp/1-20-wide.csv                      ref/2,-4--2.tsv
+# same but w/ subset-order reversed
+cuts 2,-2--4 inp/1-20-wide.csv                      ref/2,-2--4.tsv
+
+# -4 .. -2
+cuts 2,-4--2 inp/1-20-wide.csv                      ref/2,-4--2.tsv
+# -4 .. 2 (wrap around the end, from negative to positive)
+cuts 2,-4-2 inp/1-20-wide.csv                       ref/2,-4-2.tsv
+
+
 
