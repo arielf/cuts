@@ -564,33 +564,39 @@ is missing were much more critical for me when writing `cuts`.
 
 The most notable remaining issues with `cuts` are (IMHO):
 
-  - Ranges going from positive to negative offsets, e.g. 2--3
-    are interpreted as in reverse order (because 2 > -3).
-    The result is a wrapped-around the beginning index-set
-    This is good because is consistent with the symmetric
-    wrap-around-the-end case of say, -3-2.  OTOH: it is bad because
-    it is not the natural human-way of interpreting negative
-    indexes as being higher (near the end of the line).
+ - Ranges going from positive to negative offsets, e.g. 2--3
+   are interpreted as in reverse order (because 2 > -3).
+   The result is a wrapped-around the beginning index-set
+   This is good because is consistent with the symmetric
+   wrap-around-the-end case of say, -3-2.  OTOH: it is bad because
+   it is not the natural human-way of interpreting negative
+   indexes as being higher (near the end of the line).
 
-  - Speed (vs compiled C)
+ - Speed (vs compiled C)
 
-  - Unexpected results if your data has tabs, spaces, and/or
-    commas within fields.  This is a deliberate design decision
-    (optimize for the most common case.) that can be easily worked-around.
-    If you don't like the default, you can either:
-    - Pass a different delimiter using: -d 'regexp'
-    - Make your choice permanent via the personal config file
-      `~/.cuts.pl` and the `$ICS` (Input Column Separator) variable.
+ - Unexpected results if your data has tabs, spaces, and/or
+   commas within fields.  This is a deliberate design decision
+   (optimize for the most common case.) that can be easily worked-around.
+   If you don't like the default, you can either:
+  - Pass a different delimiter using: -d 'regexp'
+  - Make your choice permanent via the personal config file
+    `~/.cuts.pl` and the `$ICS` (Input Column Separator) variable.
 
 ## Other thoughts & notes
 
-Should I extend the default `$ICS` to also cover `:`, `;`? Other
-punctuation chars?  I am not sure.  For some people who regularly
+#### Should the default `$ICS` be extended?
+
+To also cover `:`, `;`?
+
+Other punctuation chars?
+
+I am not sure.  For some people who regularly
 use data-sets with these chars as delimiters, it makes sense, but
 for the vast majority of users, the current simple (and minimalistic)
 default should work well.
 
-Why do I support the `filename:colno` syntax? you may ask.
+#### Why do I support the `filename:colno` syntax?
+
 It seems redundant (since `filename colno` works just as well.)
 The reason is that sometimes you may have files named `1`, `2` etc.
 This introduces an ambiguity: are these arguments files or column numbers?
@@ -603,9 +609,12 @@ This introduces an ambiguity: are these arguments files or column numbers?
    instead of `:` for somewhat greater control.
 
 
-Resolving option ambiguity: negative column offsets and `-` for
-`stdin` don't play well with `getopts()` because the code can no longer
-assume that what starts with `-` is an option and not an argument.
+#### Resolving option ambiguity
+
+Negative column offsets and `-` for `stdin` don't play well
+with `getopts()` because the code can no longer assume that what
+starts with `-` is an option and not an argument.
+
 `cuts` solves this by auto injecting `--` (end of options marker)
 into `@ARGV` _before_ calling getopts (if needed).  This is so the
 user never has to worry about the ambiguity.  For example, (`-v` is
@@ -617,21 +626,27 @@ disambiguates them correctly:
     $ cuts -v -3 file.txt
 ```
 
-Test suite: `cuts` comes with an extensive test suite to ensure
+#### Test suite
+
+`cuts` comes with an extensive test suite to ensure
 that it behaves as designed, and that changes don't cause regressions.
 Running `make` in the top source directory or in the `tests`
 sub-directory will run the test suite.
 
-Historical perspective: `cut` is one of the earliest Unix utilities
+#### Historical perspective
+
+`cut` is one of the earliest Unix utilities
 with over 40 years of history.  It's top weaknesses of single char
 delimiters and no support for regexps are a likely a direct result
 of being written so early.  What is surprising is that in 40 years
 no significant improvement to it has been introduced, in particular,
 when POSIX, and the free GNU implementation came about.
 
-Other implementations of improved `cut`:  before diving into coding
-I searched the web for alternatives.  I found a few, unsurprisingly,
-most written in perl, but none of them were what I was looking for.
+#### Other implementations of improved `cut`
+
+Before diving into coding I searched the web for alternatives.
+I found a few, unsurprisingly, most written in perl, but none
+of them were what I was looking for.
 
 I basically wanted an enhanced `cut`, i.e. a tool that fixes
 the top pain-points in `cut` rather than a new beast altogether.
@@ -644,6 +659,8 @@ Replacements that were too weak: e.g. missing ranges, or missing
 negative offsets, or too complex: requiring a big manual nearby,
 or having a long list of options that were cobbled together ad-hoc,
 were out.  So I just had to write my own.
+
+#### Feedback
 
 If you like `cuts`, please shoot me an email. If you don't, it is
 free software and it is hosted on github, so consider forking, and
