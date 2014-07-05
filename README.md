@@ -564,20 +564,20 @@ is missing were much more critical for me when writing `cuts`.
 
 The most notable remaining issues with `cuts` are (IMHO):
 
- - Ranges going from positive to negative offsets, e.g. 2--3
-   are interpreted as in reverse order (because 2 > -3).
-   The result is a wrapped-around the beginning index-set
-   This is good because is consistent with the symmetric
-   wrap-around-the-end case of say, -3-2.  OTOH: it is bad because
-   it is not the natural human-way of interpreting negative
-   indexes as being higher (near the end of the line).
+- Ranges going from positive to negative offsets, e.g. 2--3
+  are interpreted as in reverse order (because 2 > -3).
+  The result is a wrapped-around the beginning index-set
+  This is good because is consistent with the symmetric
+  wrap-around-the-end case of say, -3-2.  OTOH: it is bad because
+  it is not the natural human-way of interpreting negative
+  indexes as being higher (near the end of the line).
 
- - Speed (vs compiled C)
+- Speed (vs compiled C)
 
- - Unexpected results if your data has tabs, spaces, and/or
-   commas within fields.  This is a deliberate design decision
-   (optimize for the most common case.) that can be easily worked-around.
-   If you don't like the default, you can either:
+- Unexpected results if your data has tabs, spaces, and/or
+  commas within fields.  This is a deliberate design decision
+  (optimize for the most common case.) that can be easily worked-around.
+  If you don't like the default, you can either:
   - Pass a different delimiter using: -d 'regexp'
   - Make your choice permanent via the personal config file
     `~/.cuts.pl` and the `$ICS` (Input Column Separator) variable.
