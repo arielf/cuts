@@ -640,14 +640,22 @@ If you don't like the default, you can either:</p>
 </ul><h2>
 <a name="other-thoughts--notes" class="anchor" href="#other-thoughts--notes"><span class="octicon octicon-link"></span></a>Other thoughts &amp; notes</h2>
 
-<p>Should I extend the default <code>$ICS</code> to also cover <code>:</code>, <code>;</code>? Other
-punctuation chars?  I am not sure.  For some people who regularly
+<h4>
+<a name="should-the-default-ics-be-extended" class="anchor" href="#should-the-default-ics-be-extended"><span class="octicon octicon-link"></span></a>Should the default <code>$ICS</code> be extended?</h4>
+
+<p>To also cover <code>:</code>, <code>;</code>?</p>
+
+<p>Other punctuation chars?</p>
+
+<p>I am not sure.  For some people who regularly
 use data-sets with these chars as delimiters, it makes sense, but
 for the vast majority of users, the current simple (and minimalistic)
 default should work well.</p>
 
-<p>Why do I support the <code>filename:colno</code> syntax? you may ask.
-It seems redundant (since <code>filename colno</code> works just as well.)
+<h4>
+<a name="why-do-i-support-the-filenamecolno-syntax" class="anchor" href="#why-do-i-support-the-filenamecolno-syntax"><span class="octicon octicon-link"></span></a>Why do I support the <code>filename:colno</code> syntax?</h4>
+
+<p>It seems redundant (since <code>filename colno</code> works just as well.)
 The reason is that sometimes you may have files named <code>1</code>, <code>2</code> etc.
 This introduces an ambiguity: are these arguments files or column numbers?
 <code>cuts</code> solves this ambiguity by:</p>
@@ -658,10 +666,14 @@ This introduces an ambiguity: are these arguments files or column numbers?
 presence of a file by the same name, you can use the <code>file:colno</code> syntax.</li>
 <li>You may even use <code>#</code>, or <code>%</code>, as the <code>file:colno</code> separator
 instead of <code>:</code> for somewhat greater control.</li>
-</ul><p>Resolving option ambiguity: negative column offsets and <code>-</code> for
-<code>stdin</code> don't play well with <code>getopts()</code> because the code can no longer
-assume that what starts with <code>-</code> is an option and not an argument.
-<code>cuts</code> solves this by auto injecting <code>--</code> (end of options marker)
+</ul><h4>
+<a name="resolving-option-ambiguity" class="anchor" href="#resolving-option-ambiguity"><span class="octicon octicon-link"></span></a>Resolving option ambiguity</h4>
+
+<p>Negative column offsets and <code>-</code> for <code>stdin</code> don't play well
+with <code>getopts()</code> because the code can no longer assume that what
+starts with <code>-</code> is an option and not an argument.</p>
+
+<p><code>cuts</code> solves this by auto injecting <code>--</code> (end of options marker)
 into <code>@ARGV</code> <em>before</em> calling getopts (if needed).  This is so the
 user never has to worry about the ambiguity.  For example, (<code>-v</code> is
 <code>cuts</code> own debugging/verbose option, while <code>-3</code> is a column index
@@ -671,21 +683,31 @@ disambiguates them correctly:</p>
 <pre><code>    $ cuts -v -3 file.txt
 </code></pre>
 
-<p>Test suite: <code>cuts</code> comes with an extensive test suite to ensure
+<h4>
+<a name="test-suite" class="anchor" href="#test-suite"><span class="octicon octicon-link"></span></a>Test suite</h4>
+
+<p><code>cuts</code> comes with an extensive test suite to ensure
 that it behaves as designed, and that changes don't cause regressions.
 Running <code>make</code> in the top source directory or in the <code>tests</code>
 sub-directory will run the test suite.</p>
 
-<p>Historical perspective: <code>cut</code> is one of the earliest Unix utilities
+<h4>
+<a name="historical-perspective" class="anchor" href="#historical-perspective"><span class="octicon octicon-link"></span></a>Historical perspective</h4>
+
+<p><code>cut</code> is one of the earliest Unix utilities
 with over 40 years of history.  It's top weaknesses of single char
 delimiters and no support for regexps are a likely a direct result
 of being written so early.  What is surprising is that in 40 years
 no significant improvement to it has been introduced, in particular,
 when POSIX, and the free GNU implementation came about.</p>
 
-<p>Other implementations of improved <code>cut</code>:  before diving into coding
-I searched the web for alternatives.  I found a few, unsurprisingly,
-most written in perl, but none of them were what I was looking for.</p>
+<h4>
+<a name="other-implementations-of-improved-cut" class="anchor" href="#other-implementations-of-improved-cut"><span class="octicon octicon-link"></span></a>Other implementations of improved <code>cut</code>
+</h4>
+
+<p>Before diving into coding I searched the web for alternatives.
+I found a few, unsurprisingly, most written in perl, but none
+of them were what I was looking for.</p>
 
 <p>I basically wanted an enhanced <code>cut</code>, i.e. a tool that fixes
 the top pain-points in <code>cut</code> rather than a new beast altogether.</p>
@@ -698,6 +720,9 @@ at first looked contradictory, but turned out to be possible.</p>
 negative offsets, or too complex: requiring a big manual nearby,
 or having a long list of options that were cobbled together ad-hoc,
 were out.  So I just had to write my own.</p>
+
+<h4>
+<a name="feedback" class="anchor" href="#feedback"><span class="octicon octicon-link"></span></a>Feedback</h4>
 
 <p>If you like <code>cuts</code>, please shoot me an email. If you don't, it is
 free software and it is hosted on github, so consider forking, and
