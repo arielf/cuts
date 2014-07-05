@@ -167,7 +167,7 @@ sub get_args {
             next;
         }
         last unless ($arg =~ /^-/);
-        if ($arg =~ /^-\d*$/ && $arg ne '-0') {
+        if ($arg =~ /^-\d*$/ && $arg ne '-0' or $arg =~ /^-\d+--?\d+$/) {
             splice(@ARGV, $i, 0, '--');
             last;
         }
