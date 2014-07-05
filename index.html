@@ -67,19 +67,32 @@ $ cuts 0 test.dat
 0
 </code></pre>
 
-<p>As you can see, I prefer zero-based indexing.  <code>cuts</code> uses 0 for 1st column.</p>
+<p>As you can see, I prefer zero-based indexing: by default, <code>cuts</code>
+uses the 0 index for the 1st column.</p>
+
+<p>If you hate this default, there's no need to run away since you
+can easily change the defaults of <code>cuts</code> via a small config file
+which is read very early during runtime (read on).</p>
 
 <h4>
 <a name="cuts-supports-mixed-input-delimiters-eg-both-csv-and-tsv" class="anchor" href="#cuts-supports-mixed-input-delimiters-eg-both-csv-and-tsv"><span class="octicon octicon-link"></span></a>
 <code>cuts</code> supports mixed input delimiters (e.g. both CSV and TSV)</h4>
 
 <pre><code>#
+# -- a file with mixed delimiters
+#
+0,1,2
+0 1 2
+0   1   2
+
+#
 # -- cut doesn't "cut it":
 #
 cut -f2 t.mixed
 0,1,2
 0 1 2
 1
+
 #
 # -- cuts does:
 #
@@ -160,8 +173,8 @@ $ cuts 1 012.txt
 </code></pre>
 
 <h4>
-<a name="cuts-supports-powerful-perl-style-regex-delimiters" class="anchor" href="#cuts-supports-powerful-perl-style-regex-delimiters"><span class="octicon octicon-link"></span></a>
-<code>cuts</code> supports powerful (perl style) regex delimiters</h4>
+<a name="cuts-supports-powerful-perl-style-regexp-delimiters" class="anchor" href="#cuts-supports-powerful-perl-style-regexp-delimiters"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> supports powerful (perl style) regexp delimiters</h4>
 
 <p>When your delimiter is a bit more complex (say, any sequence of non-digits)
 and you have <code>cut</code>, you're out-of-luck. <code>cuts</code> fixes this by allowing you
@@ -176,8 +189,8 @@ $ cat 012.regex
 0 aa 1 bbbbbbb 2
 
 #
-# -- cuts accepts perl regexes for delimiters
-#    in this case, we set delimiter regex to any sequence of non-digits
+# -- cuts accepts perl regexps for delimiters
+#    in this case, we set delimiter regexp to any sequence of non-digits
 #
 $ cuts -d '[^0-9]+' 1 012.regex
 1
@@ -238,7 +251,7 @@ jobs that would require writing specialized scripts,
 straight-forward with <code>cuts</code>:</p>
 
 <pre><code>#
-# -- Example file, not that Mary doesn't have a midinitial
+# -- Example file, Mary doesn't have a middle-initial
 #
 $ cat t.complex
 firstname  midinitial lastname    phone-number   Age
@@ -268,7 +281,7 @@ you think "separator" instead of "delimiter" - it still works
 <a name="cuts-requires-minimal-typing-for-simple-column-extraction-tasks" class="anchor" href="#cuts-requires-minimal-typing-for-simple-column-extraction-tasks"><span class="octicon octicon-link"></span></a>
 <code>cuts</code> requires minimal typing for simple column extraction tasks</h4>
 
-<p><code>cut</code> is hader to use and less friendly because it doesn't support
+<p><code>cut</code> is harder to use, and less friendly because it doesn't support
 reasonable defaults. For example:</p>
 
 <pre><code>#
@@ -299,7 +312,7 @@ $ cuts example.csv
 </code></pre>
 
 <p>but that requires too much typing (3 commands &amp; shell-magic),
-while still not supporting regex-style delimiters and offsets from end.</p>
+while still not supporting regexp-style delimiters and offsets from end.</p>
 
 <p>Compare the above to the much simpler, and more intuitive, <code>cuts</code> version,
 which works right out of the box, in any shell:</p>
@@ -317,6 +330,41 @@ $ cuts file.csv 0 file.tsv 1
 a   b
 </code></pre>
 
+<h4>
+<a name="cuts-supports-reverse-ranges-and-range-wrap-arounds" class="anchor" href="#cuts-supports-reverse-ranges-and-range-wrap-arounds"><span class="octicon octicon-link"></span></a>
+<code>cuts</code> supports reverse-ranges and range wrap-arounds</h4>
+
+<pre><code>$ cat 1-20-wide.csv
+0,1,2,3,4,5,6,7,8,9,10
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+
+#
+# -- last 3 fields
+#
+$ cuts -3--1 1-20-wide.csv
+8   9   10
+13  14  15
+18  19  20
+
+#
+# -- reverse order works too, as expected:
+#
+$ cuts -1--3 1-20-wide.csv
+10  9   8
+15  14  13
+20  19  18
+
+#
+# -- and you can wrap-around the end (from negative to positive) too:
+#
+$ cuts -1-2 1-20-wide.csv
+10  0   1   2
+15  0   1   2
+20  0   1   2
+
+</code></pre>
+
 <p>Other utilities, like <code>awk</code> or <code>perl</code> give you more power at the expense
 of having to learn a much more complex language to do what you want.</p>
 
@@ -331,7 +379,7 @@ the human interface <em>as simple and minimalist as possible</em></p>
 - any combo of the two using: `file:colno`
 </code></pre>
 
-<p><code>cuts</code> also supports <code>-</code> as a handy alias for <code>stdin</code>.</p>
+<p>Just like <code>cut</code>, <code>cuts</code> supports <code>-</code> as a handy alias for <code>stdin</code>.</p>
 
 <h2>
 <a name="cuts-design-principles" class="anchor" href="#cuts-design-principles"><span class="octicon octicon-link"></span></a>
@@ -358,15 +406,15 @@ any other command output into <code>cuts</code>.</p>
 any-sequence of white-space <em>or</em> a comma, optionally surrounded by
 white-space. As a result, in the vast majority of use cases, there's
 no need to specify an input column delimiter at all.  If you have
-a more complex case you may overide <code>cuts</code> default
+a more complex case you may override <code>cuts</code> default
 input-field-delimiter:</p>
 
-<pre><code>    $ cuts -d '&lt;some-perl-regex&gt;' ...
+<pre><code>    $ cuts -d '&lt;some-perl-regexp&gt;' ...
     # see `man perlre` for documentation on perl regular expressions
 </code></pre>
 
 <p>Similarly, the output column delimiter which is tab by default, can be
-overriden using <code>-T &lt;sep&gt;</code> (or -S, or -D).  This is chosen
+overridden using <code>-T &lt;sep&gt;</code> (or -S, or -D).  This is chosen
 as a mnemonic: lowercase options are for input delimiters, while
 the respective upper-case options are for output delimiters.</p>
 
@@ -377,17 +425,23 @@ the respective upper-case options are for output delimiters.</p>
 to type more than needed, or enforce an order of arguments on you.
 It tries to be as minimalist as possible in its requirements from the user.
 Compare one of the simplest and most straightforward examples of
-extracting 3 columns from a single file:</p>
+extracting 2 columns (first and third) from a single file:</p>
 
 <pre><code># -- the traditional, cut way:
-$ cut -d, -f 1,2,3 file.csv
+$ cut -d, -f 1,3 file.csv
 
-# -- the cuts way: shorter &amp; sweeter:
-$ cuts file.csv 0 1 2
+# -- the cuts way: (over 25%) shorter &amp; sweeter:
+$ cuts file.csv 0 2
 </code></pre>
 
 <p>Minimal typing is also what guided the decision to include the
 functionality of <code>paste</code> in <code>cuts</code>.</p>
+
+<p>There's one exception to the <code>cuts</code> requires less typing: <code>cut</code>
+allows half-ranges like <code>-N</code> to mean "up to Nth field", for
+example <code>-3</code> implies <code>1-3</code> (a small saving of a single character
+when typing). Since <code>cuts</code> has to support negative offsets which
+are much more important, IMHO, full ranges are required.</p>
 
 <h3>
 <a name="input-flexibility--tolerance-to-missing-data" class="anchor" href="#input-flexibility--tolerance-to-missing-data"><span class="octicon octicon-link"></span></a>Input flexibility &amp; tolerance to missing data</h3>
@@ -422,6 +476,13 @@ undefined values to empty ones.</p>
     cuts f1 0 -1 f2         1st &amp; last columns from f1
                             + last column (last colno seen) from f2
 
+    cuts 3,5-8 f1           columns (3, 5, 6, 7, 8) (0-based) from f1
+
+    cuts 3,8-5 f1           Same as above, but 5-8 in reverse order
+
+    cuts -4--1              Last 4 columns as a range
+
+    cuts -2-3               Last 2 columns and 1st 4 columns (range wrap-around)
 </code></pre>
 
 <h2>
@@ -473,6 +534,10 @@ Usage: cuts [Options] [Column_Specs]...
 
         cuts f1 0 -1 f2         1st &amp; last columns from f1
                                 + last column (last colno seen) from f2
+
+        cuts 3,5-8 f1           Columns (3, 5, 6, 7, 8) from f1
+
+        cuts 3,8-5 f1           Same as above, but 5-8 in reverse order
 </code></pre>
 
 <h2>
@@ -483,7 +548,7 @@ an optional personal configuration ~/.cuts.pl</p>
 
 <p>If this file exists, cuts will read it during startup allowing you
 override cuts default parameters, in particular the value of
-the <code>$ICS</code> input-column separator regex.  The syntax of this
+the <code>$ICS</code> input-column separator regexp.  The syntax of this
 file is perl:</p>
 
 <pre><code>     # -- If you prefer 1-based indexing, by default, set this to 1
@@ -492,7 +557,7 @@ file is perl:</p>
      our $opt_0 = 0;
 
      # -- Alternative file:colno char separators
-     our $FCsep = ':;,#';
+     our $FCsep = ':%#';
 
      # -- Default input column separator (smart)
      our $ICS = '(?:\s*,\s*|\s+)';
@@ -511,14 +576,15 @@ file is perl:</p>
 <p>I made no effort to make <code>cuts</code> fast.  Although compared to the
 I/O overhead, there may be not much need for it.  If you have ideas
 on how to make the column extractions and joining more efficient,
-that would be welcome.</p>
+without compromising the simplicity, elegance and generality
+of the code, that would be welcome.</p>
 
 <p>Per file column input delimiters.  I haven't had the need so far so
 that took a back-seat in priority.  The most common case of
 intermixing TSV and CSV files as inputs is working thanks to
-the current default multi-match pattern <code>$ICS</code> which simply
-matches all of: multi-white-space, tabs, or (optionally space surrounded)
-commas.  Even an extreme case of a schizophrenic input like:</p>
+the current default multi-match pattern <code>$ICS</code>. <code>$ICS</code> simply
+matches any of: multi-white-space, tabs, or (optionally space surrounded)
+commas.  This ensures that even an extreme case of a schizophrenic input like:</p>
 
 <pre><code>$ cat schizo.csv
 0,1 ,  2
@@ -527,8 +593,7 @@ commas.  Even an extreme case of a schizophrenic input like:</p>
 a  b   c
 </code></pre>
 
-<p>Works correctly, and as designed/expected, with the present smart
-column-delimiter trick:</p>
+<p>Works correctly, and as designed/expected.</p>
 
 <pre><code>$ cuts -1 schizo.csv
 2
@@ -537,18 +602,49 @@ column-delimiter trick:</p>
 c
 </code></pre>
 
-<p>I consider it a blissful feature.</p>
+<p>Some may consider this non-purist. I consider it a blissful feature
+because it allows dealing with even poorly structured data-sets.</p>
 
 <p>Implement <code>cut</code> rarely used options?  I haven't had the need for
 them, and if I ever do, I can simply use <code>cut</code> itself, so I haven't
-even tried to implement stuff like fixed-width field support,
-byte-offsets, <code>--complement</code>, <code>--characters</code>.   The basic features
-that <code>cut</code> is missing were much more critical for me when writing <code>cuts</code>.
-Still on top of this is implementing column-ranges like: 3-5 and mixed
-ranges with lists like: 1,3-5,7</p>
+tried to implement fixed-width field support, byte-offsets,
+<code>--complement</code>, <code>--characters</code>.   The basic features that <code>cut</code>
+is missing were much more critical for me when writing <code>cuts</code>.</p>
 
 <h2>
-<a name="other-thoughts" class="anchor" href="#other-thoughts"><span class="octicon octicon-link"></span></a>Other thoughts</h2>
+<a name="bugs--limitations" class="anchor" href="#bugs--limitations"><span class="octicon octicon-link"></span></a>Bugs &amp; Limitations</h2>
+
+<p>The most notable remaining issues with <code>cuts</code> are (IMHO):</p>
+
+<ul>
+<li><p>Ranges going from positive to negative offsets, e.g. 2--3
+are interpreted as in reverse order (because 2 &gt; -3).
+The result is a wrapped-around the beginning index-set
+This is good because is consistent with the symmetric
+wrap-around-the-end case of say, -3-2.  OTOH: it is bad because
+it is not the natural human-way of interpreting negative
+indexes as being higher (near the end of the line).</p></li>
+<li><p>Speed (vs compiled C)</p></li>
+<li>
+<p>Unexpected results if your data has tabs, spaces, and/or
+commas within fields.  This is a deliberate design decision
+(optimize for the most common case.) that can be easily worked-around.
+If you don't like the default, you can either:</p>
+
+<ul>
+<li>Pass a different delimiter using: -d 'regexp'</li>
+<li>Make your choice permanent via the personal config file
+<code>~/.cuts.pl</code> and the <code>$ICS</code> (Input Column Separator) variable.</li>
+</ul>
+</li>
+</ul><h2>
+<a name="other-thoughts--notes" class="anchor" href="#other-thoughts--notes"><span class="octicon octicon-link"></span></a>Other thoughts &amp; notes</h2>
+
+<p>Should I extend the default <code>$ICS</code> to also cover <code>:</code>, <code>;</code>? Other
+punctuation chars?  I am not sure.  For some people who regularly
+use data-sets with these chars as delimiters, it makes sense, but
+for the vast majority of users, the current simple (and minimalistic)
+default should work well.</p>
 
 <p>Why do I support the <code>filename:colno</code> syntax? you may ask.
 It seems redundant (since <code>filename colno</code> works just as well.)
@@ -560,17 +656,54 @@ This introduces an ambiguity: are these arguments files or column numbers?
 <li>Giving priority to files (it first checks arguments for file existence)</li>
 <li>In case you want to force <code>1</code> to a column number, even in the
 presence of a file by the same name, you can use the <code>file:colno</code> syntax.</li>
-<li>You may even use <code>#</code>, <code>,</code> or <code>;</code> (needs shell quoting), as the
-<code>file:colno</code> separator instead of <code>:</code> for somewhat greater control.</li>
+<li>You may even use <code>#</code>, or <code>%</code>, as the <code>file:colno</code> separator
+instead of <code>:</code> for somewhat greater control.</li>
 </ul><p>Resolving option ambiguity: negative column offsets and <code>-</code> for
-<code>stdin</code> don't play well with <code>getopts()</code>.  <code>cuts</code> solves this by auto
-injecting <code>--</code> (end of options marker) into <code>@ARGV</code> before calling
-getopts when needed.  This is so the user never has to worry about
-the ambiguity.  For example, (<code>-v</code> is <code>cuts</code> own debugging/verbose
-option, while <code>-3</code> is a column index specifier) this works as expected:</p>
+<code>stdin</code> don't play well with <code>getopts()</code> because the code can no longer
+assume that what starts with <code>-</code> is an option and not an argument.
+<code>cuts</code> solves this by auto injecting <code>--</code> (end of options marker)
+into <code>@ARGV</code> <em>before</em> calling getopts (if needed).  This is so the
+user never has to worry about the ambiguity.  For example, (<code>-v</code> is
+<code>cuts</code> own debugging/verbose option, while <code>-3</code> is a column index
+specifier), still this works as expected because <code>cuts</code>
+disambiguates them correctly:</p>
 
 <pre><code>    $ cuts -v -3 file.txt
 </code></pre>
+
+<p>Test suite: <code>cuts</code> comes with an extensive test suite to ensure
+that it behaves as designed, and that changes don't cause regressions.
+Running <code>make</code> in the top source directory or in the <code>tests</code>
+sub-directory will run the test suite.</p>
+
+<p>Historical perspective: <code>cut</code> is one of the earliest Unix utilities
+with over 40 years of history.  It's top weaknesses of single char
+delimiters and no support for regexps are a likely a direct result
+of being written so early.  What is surprising is that in 40 years
+no significant improvement to it has been introduced, in particular,
+when POSIX, and the free GNU implementation came about.</p>
+
+<p>Other implementations of improved <code>cut</code>:  before diving into coding
+I searched the web for alternatives.  I found a few, unsurprisingly,
+most written in perl, but none of them were what I was looking for.</p>
+
+<p>I basically wanted an enhanced <code>cut</code>, i.e. a tool that fixes
+the top pain-points in <code>cut</code> rather than a new beast altogether.</p>
+
+<p>I was looking for a strong combination of power and simplicity.
+Even more so: I wanted more power, but a simpler interface which
+at first looked contradictory, but turned out to be possible.</p>
+
+<p>Replacements that were too weak: e.g. missing ranges, or missing
+negative offsets, or too complex: requiring a big manual nearby,
+or having a long list of options that were cobbled together ad-hoc,
+were out.  So I just had to write my own.</p>
+
+<p>If you like <code>cuts</code>, please shoot me an email. If you don't, it is
+free software and it is hosted on github, so consider forking, and
+fixing it, then, shoot me an email.  If you don't know how to code,
+and feel that I should fix it, please email anyway, or open an
+"issue" on github.  Any comment, good a bad, is highly appreciated.</p>
       </section>
     </div>
 
