@@ -277,6 +277,38 @@ $ cuts file.csv 0 file.tsv 1
 a	b
 ```
 
+#### `cuts` supports reverse-ranges and range wrap-arounds
+```
+$ cat 1-20-wide.csv
+0,1,2,3,4,5,6,7,8,9,10
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+
+#
+# -- last 3 fields
+#
+$ cuts -3--1 1-20-wide.csv
+8	9	10
+13	14	15
+18	19	20
+
+#
+# -- reverse order works too, as expected:
+#
+$ cuts -1--3 1-20-wide.csv
+10	9	8
+15	14	13
+20	19	18
+
+#
+# -- and you can wrap-around the end (from negative to positive) too:
+#
+$ cuts -1-2 1-20-wide.csv
+10	0	1	2
+15	0	1	2
+20	0	1	2
+
+```
 
 Other utilities, like `awk` or `perl` give you more power at the expense
 of having to learn a much more complex language to do what you want.
@@ -291,7 +323,7 @@ the human interface _as simple and minimalist as possible_
     - column-numbers (negative offsets from the end are supported too) or
     - any combo of the two using: `file:colno`
 
-`cuts` also supports `-` as a handy alias for `stdin`.
+Just like `cut`, `cuts` supports `-` as a handy alias for `stdin`.
 
 
 ## `cuts` design principles
@@ -384,6 +416,10 @@ undefined values to empty ones.
     cuts 3,5-8 f1           (3, 5, 6, 7, 8) columns from f1
 
     cuts 3,8-5 f1           Same as above, but 5-8 in reverse order
+
+    cuts -4--1              Last 4 columns as a range
+
+    cuts -2-3               Last 2 columns and 1st 4 columns (range wrap-around)
 ```
 
 
@@ -494,7 +530,7 @@ $ cat schizo.csv
 a  b   c
 ```
 
-Works correctly, and as designed/expected, with the present smart
+Works correctly, and as designed/expected, with the default smart
 column-delimiter trick:
 
 ```
@@ -533,7 +569,8 @@ Resolving option ambiguity: negative column offsets and `-` for
 injecting `--` (end of options marker) into `@ARGV` before calling
 getopts when needed.  This is so the user never has to worry about
 the ambiguity.  For example, (`-v` is `cuts` own debugging/verbose
-option, while `-3` is a column index specifier) this works as expected:
+option, while `-3` is a column index specifier), still this works
+as expected because `cuts` disambiguates correctly:
 
 ```
     $ cuts -v -3 file.txt
