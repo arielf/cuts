@@ -1,4 +1,5 @@
 # This is a spec file for all tests.
+# vim: textwidth=999
 #
 # this is a comment
 #
@@ -29,7 +30,7 @@ cuts inp/012.mixed 2 1	                            ref/21.tsv
 
 # file:colno syntax (multiple forms)
 cuts inp/012.mixed:2 inp/012.tsv:1                  ref/21.tsv
-cuts inp/012.mixed,2 inp/012.tsv,1                  ref/21.tsv
+cuts inp/012.mixed!2 inp/012.tsv!1                  ref/21.tsv
 cuts inp/012.mixed#2 inp/012.tsv#1                  ref/21.tsv
 
 # 3 files w/ different delimiters, same column input
@@ -66,4 +67,13 @@ cuts -0 1 2 inp/012.tsv                             ref/01.tsv
 cuts -d '\s+' -1 inp/012.tsv                        ref/2.tsv
 cuts -s '\s+' -1 inp/012.tsv                        ref/2.tsv
 cuts -t '\s+' -1 inp/012.tsv                        ref/2.tsv
+
+# list spec expansions, incl 
+cuts 1-3,2,5-7 inp/1-20-wide.csv              ref/1-3,2,5-7.tsv
+cuts ,1-3,2,5-7 inp/1-20-wide.csv             ref/1-3,2,5-7.tsv
+cuts 1-3,,,2,5,6,7 inp/1-20-wide.csv          ref/1-3,2,5-7.tsv
+
+# list-spes w/ subset order-reversed
+cuts 1-3,,2,7-5, inp/1-20-wide.csv            ref/1-3,2,7-5.tsv
+cuts 1,2,3,2,7-5 inp/1-20-wide.csv            ref/1-3,2,7-5.tsv
 

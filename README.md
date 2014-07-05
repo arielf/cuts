@@ -381,6 +381,9 @@ undefined values to empty ones.
     cuts f1 0 -1 f2         1st & last columns from f1
                             + last column (last colno seen) from f2
 
+    cuts 3,5-8 f1           (3, 5, 6, 7, 8) columns from f1
+
+    cuts 3,8-5 f1           Same as above, but 5-8 in reverse order
 ```
 
 
@@ -433,6 +436,10 @@ Usage: cuts [Options] [Column_Specs]...
 
         cuts f1 0 -1 f2         1st & last columns from f1
                                 + last column (last colno seen) from f2
+
+        cuts 3,5-8 f1           (3, 5, 6, 7, 8) columns from f1
+
+        cuts 3,8-5 f1           Same as above, but 5-8 in reverse order
 ```
 
 ## Further configuration & customization
@@ -452,7 +459,7 @@ file is perl:
      our $opt_0 = 0;
 
      # -- Alternative file:colno char separators
-     our $FCsep = ':;,#';
+     our $FCsep = ':!#';
 
      # -- Default input column separator (smart)
      our $ICS = '(?:\s*,\s*|\s+)';
@@ -505,8 +512,6 @@ them, and if I ever do, I can simply use `cut` itself, so I haven't
 even tried to implement stuff like fixed-width field support,
 byte-offsets, `--complement`, `--characters`.   The basic features
 that `cut` is missing were much more critical for me when writing `cuts`.
-Still on top of this is implementing column-ranges like: 3-5 and mixed
-ranges with lists like: 1,3-5,7
 
 ## Other thoughts
 
@@ -519,8 +524,8 @@ This introduces an ambiguity: are these arguments files or column numbers?
  - Giving priority to files (it first checks arguments for file existence)
  - In case you want to force `1` to a column number, even in the
    presence of a file by the same name, you can use the `file:colno` syntax.
- - You may even use `#`, `,` or `;` (needs shell quoting), as the
-  `file:colno` separator instead of `:` for somewhat greater control.
+ - You may even use `#`, or `!, as the `file:colno` separator
+   instead of `:` for somewhat greater control.
 
 
 Resolving option ambiguity: negative column offsets and `-` for

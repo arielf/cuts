@@ -31,7 +31,7 @@ my $ConfigFile = "$ENV{HOME}/.cuts.pl";
 our $opt_0 = 0;
 
 # -- Alternative file:colno char separators
-our $FCsep = ':;,#';
+our $FCsep = ':!#';
 
 # -- Default input column separator (smart)
 our $ICS = '(?:\s*,\s*|\s+)';
@@ -102,16 +102,52 @@ sub usage(@) {
 
         $0 file1 file2 file3        Same as above (0 is default colno)
 
-        $0 -1 f1 f2 f3              Extract last column from each of f1, f2, and f3
+        $0 -1 f1 f2 f3              Last column from each of f1, f2, and f3
 
-        $0 file1:0 file2:-1         Extract 1st (0) column from file1 and last column from file2
+        $0 f1:0 f2:-1               1st (0) column from f1 & last column from f2
 
-        $0 0 2 3                    Extract columns (0,2,3) from /dev/stdin
+        $0 0 2 3                    Columns (0,2,3) from /dev/stdin
 
-        $0 f1 0 -1 f2               Extract 1st and last columns from f1 and last column (last colno seen) from f2
+        $0 f1 0 -1 f2               1st & last columns from f1 & last column (last colno seen) from f2
+
+        $0 3,5-8 f1                 (3, 5, 6, 7, 8) columns from f1
+
+        $0 3,8-5 f1                 Same as above, but 5-8 in reverse order
 ";
 }
 
+#
+# expand_list($list_spec)
+#   Expands a list of field indices, including negative offsets
+#       2-4,7,9  ->  (2, 3, 4, 7, 9)
+#   Negative range markers not supported yet.
+#
+sub expand_list($) {
+    my @list = ();
+    my $spec = shift;
+    foreach my $term (split(',', $spec)) {
+        if ($term =~ /^\d+$/) {
+            push(@list, $term);
+            next;
+        }
+        if ($term =~ /^(\d+)-(\d+)$/) {
+            my $reverse_order = 0;
+            my ($from, $to) = ($1, $2);
+            if ($from > $to) {
+                # be helpful, quietly fix wrong orders
+                my $tmp = $from;
+                $from = $to;
+                $to = $tmp;
+                $reverse_order = 1;
+            }
+            my @sub_list = $from .. $to;
+            @sub_list =  reverse(@sub_list) if ($reverse_order);
+            push(@list, @sub_list);
+        }
+    }
+    v("expand_list(%s): (%s)\n", $spec, join(' ', @list));
+    @list;
+}
 
 sub get_args {
     $0 =~ s{.*/}{};
@@ -155,8 +191,9 @@ sub get_args {
     my ($last_file, $last_col);
 
     my $fc_pat = sprintf('^([^%s]+)[%s](-?[0-9]+)$', $FCsep, $FCsep);
-
     # v("fc_pat: %s\n", $fc_pat);
+    my $list_term_pat = '(?:\d+(?:-\d+)?|)';
+    my $list_spec_pat = qr/^$list_term_pat(?:,$list_term_pat)*$/o;
 
     foreach my $arg (@ARGV) {
         # v("arg: %s\n", $arg);
@@ -171,6 +208,12 @@ sub get_args {
             v("colno: arg='%s'\n", $arg);
             push(@ColNos, $arg);
             $last_col = $arg;
+        } elsif ($arg =~ /$list_spec_pat/o) {
+            # -- colno list spec
+            v("listspec: arg='%s'\n", $arg);
+            my @list = expand_list($arg);
+            push(@ColNos, @list);
+            $last_col = $list[-1];
         } elsif ($arg =~ /$fc_pat/o) {
             # -- filename:colno
             my ($file, $colno) = ($1, $2);
@@ -208,7 +251,7 @@ sub get_fields() {
     # shared/repeat file descriptiors
     my %cur_line = ();
 
-    v("get_fields: \@FDS=(@FDS)\n");
+    # v("get_fields: \@FDS=(@FDS)\n");
 
     for (my $i = 0; $i < scalar(@FDS); $i++) {
         my $fd = $FDS[$i];
@@ -227,7 +270,7 @@ sub get_fields() {
         my $line = $cur_line{$fd};
 
         --$colno if ($opt_0 && $colno > 0);
-        my $f = (split(/$ICS/, $line))[$colno];
+        my $f = (split(/$ICS/o, $line))[$colno];
         # v("\tget_fields: \$f: line[$colno]: $f\n");
         $f = '' unless (defined $f);
         push(@fields, $f);
@@ -358,7 +401,7 @@ $ICS input-column separator regex.  The syntax of this file is:
     our $opt_0 = 0;
 
     # -- Alternative file:colno char separators
-    our $FCsep = ':;,#';
+    our $FCsep = ':!#';
 
     # -- Default input column separator (smart)
     our $ICS = '(?:\s*,\s*|\s+)';
