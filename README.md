@@ -418,7 +418,7 @@ undefined values to empty ones.
     cuts f1 0 -1 f2         1st & last columns from f1
                             + last column (last colno seen) from f2
 
-    cuts 3,5-8 f1           (3, 5, 6, 7, 8) columns from f1
+    cuts 3,5-8 f1           columns (3, 5, 6, 7, 8) (0-based) from f1
 
     cuts 3,8-5 f1           Same as above, but 5-8 in reverse order
 
