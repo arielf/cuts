@@ -17,7 +17,10 @@ cuts 1 2 inp/012.tsv                                ref/12.tsv
 cuts 2 1 0 inp/012.tsv                              ref/210.tsv
 
 # convert tsv to csv (all fields included)
+# 3 equivalent option forms
 cuts -T, 0 1 2 inp/012.tsv                          ref/012.csv
+cuts -D, 0 1 2 inp/012.tsv                          ref/012.csv
+cuts -S, 0 1 2 inp/012.tsv                          ref/012.csv
 
 # mixed separators
 cuts 1 inp/012.mixed	                            ref/1.tsv
