@@ -127,7 +127,7 @@ $ cuts 1 012.txt
 1
 ```
 
-#### `cuts` supports powerful (perl style) regex delimiters
+#### `cuts` supports powerful (perl style) regexp delimiters
 
 When your delimiter is a bit more complex (say, any sequence of non-digits)
 and you have `cut`, you're out-of-luck. `cuts` fixes this by allowing you
@@ -143,8 +143,8 @@ $ cat 012.regex
 0 aa 1 bbbbbbb 2
 
 #
-# -- cuts accepts perl regexes for delimiters
-#    in this case, we set delimiter regex to any sequence of non-digits
+# -- cuts accepts perl regexps for delimiters
+#    in this case, we set delimiter regexp to any sequence of non-digits
 #
 $ cuts -d '[^0-9]+' 1 012.regex
 1
@@ -258,7 +258,7 @@ Obviously with the power of the `bash` shell you can do stuff like:
 ```
 
 but that requires too much typing (3 commands & shell-magic),
-while still not supporting regex-style delimiters and offsets from end.
+while still not supporting regexp-style delimiters and offsets from end.
 
 Compare the above to the much simpler, and more intuitive, `cuts` version,
 which works right out of the box, in any shell:
@@ -348,16 +348,16 @@ By default, the input column delimiter is the most common case of
 any-sequence of white-space *or* a comma, optionally surrounded by
 white-space. As a result, in the vast majority of use cases, there's
 no need to specify an input column delimiter at all.  If you have
-a more complex case you may overide `cuts` default
+a more complex case you may override `cuts` default
 input-field-delimiter:
 
 ```
-    $ cuts -d '<some-perl-regex>' ...
+    $ cuts -d '<some-perl-regexp>' ...
     # see `man perlre` for documentation on perl regular expressions
 ```
 
 Similarly, the output column delimiter which is tab by default, can be
-overriden using `-T <sep>` (or -S, or -D).  This is chosen
+overridden using `-T <sep>` (or -S, or -D).  This is chosen
 as a mnemonic: lowercase options are for input delimiters, while
 the respective upper-case options are for output delimiters.
 
@@ -373,7 +373,7 @@ extracting 2 columns (first and third) from a single file:
 # -- the traditional, cut way:
 $ cut -d, -f 1,3 file.csv
 
-# -- the cuts way: (almost 30%) shorter & sweeter:
+# -- the cuts way: (over 25%) shorter & sweeter:
 $ cuts file.csv 0 2
 ```
 
@@ -384,7 +384,7 @@ There's one exception to the `cuts` requires less typing: `cut`
 allows half-ranges like `-N` to mean "up to Nth field", for
 example `-3` implies `1-3` (a small saving of a single character
 when typing). Since `cuts` has to support negative offsets which
-are much more improtant, IMHO, full ranges are required.
+are much more important, IMHO, full ranges are required.
 
 ### Input flexibility & tolerance to missing data
 
@@ -490,7 +490,7 @@ an optional personal configuration ~/.cuts.pl
 
 If this file exists, cuts will read it during startup allowing you
 override cuts default parameters, in particular the value of
-the `$ICS` input-column separator regex.  The syntax of this
+the `$ICS` input-column separator regexp.  The syntax of this
 file is perl:
 
 ```
@@ -616,7 +616,7 @@ with over 40 years of history.  It's top weaknesses of single char
 delimiters and no support for regexps are a likely a direct result
 of being written so early.  What is surprising is that in 40 years
 no significant improvement to it has been introduced, in particular,
-when POSIX, and the free GNU implemenation came about.
+when POSIX, and the free GNU implementation came about.
 
 Other implementations of improved `cut`:  before diving into coding
 I searched the web for alternatives.  I found a few, unsurprisingly,
