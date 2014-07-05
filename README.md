@@ -653,9 +653,10 @@ were out.  So I just had to write my own.
 
 #### Feedback
 
-If you like `cuts`, please shoot me an email. If you don't, it is
-free software and it is hosted on github, so consider forking, and
-fixing it, then, shoot me an email.  If you don't know how to code,
+If you like `cuts`, please send me an email via github.2009
+.at. yendor.com
+If you don't, `cuts` is free software and it is hosted on github,
+so consider forking, and fixing it.  If you don't know how to code,
 and feel that I should fix it, please email anyway, or open an
 "issue" on github.  Any comment, good a bad, is highly appreciated.
 
