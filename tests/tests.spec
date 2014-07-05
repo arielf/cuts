@@ -58,4 +58,9 @@ cat inp/012.tsv | cuts - 1 2 0 - 2 1                ref/12021.tsv
 # 1-based indexing
 cuts -0 1 2 inp/012.tsv                             ref/01.tsv
 
+# verify otions/args ambiguity separator
+# (use 3 different option aliases)
+cuts -d '\s+' -1 inp/012.tsv                        ref/2.tsv
+cuts -s '\s+' -1 inp/012.tsv                        ref/2.tsv
+cuts -t '\s+' -1 inp/012.tsv                        ref/2.tsv
 

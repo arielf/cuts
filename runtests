@@ -3,7 +3,7 @@
 # Bare-bones test suite for cuts
 # Add more tests in tests/tests.spec
 #
-$ENV{'PATH'} = ".:..:/bin:/usr/bin";
+$ENV{'PATH'} = '.:..:/bin:/usr/bin';
 
 my $TestNo = 0;
 my $Fails = 0;

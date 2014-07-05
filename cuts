@@ -125,6 +125,11 @@ sub get_args {
     for (my $i = 0; $i < $nargs; $i++) {
         my $arg = $ARGV[$i];
         # As long as we have args looking as options
+        if ($arg =~ /^-[dtsDTS]$/) {
+            # argumentative options, need additional advance
+            $i++;
+            next;
+        }
         last unless ($arg =~ /^-/);
         if ($arg =~ /^-\d*$/ && $arg ne '-0') {
             splice(@ARGV, $i, 0, '--');
