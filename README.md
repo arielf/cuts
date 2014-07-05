@@ -31,7 +31,12 @@ $ cuts 0 test.dat
 0
 0
 ```
-As you can see, I prefer zero-based indexing.  `cuts` uses 0 for 1st column.
+As you can see, I prefer zero-based indexing: by default, `cuts`
+uses the 0 index for the 1st column.
+
+If you hate this default, there's no need to run away since you
+can easily change the defaults of `cuts` via a small config file
+which is read very early during runtime (read on).
 
 #### `cuts` supports mixed input delimiters (e.g. both CSV and TSV)
 ```
@@ -578,6 +583,12 @@ The most notable remaining issues with `cuts` are (IMHO):
       `~/.cuts.pl` and the `$ICS` (Input Column Separator) variable.
 
 ## Other thoughts & notes
+
+Should I extend the default `$ICS` to also cover `:`, `;`? Other
+punctuation chars?  I am not sure.  For some people who regularly
+use data-sets with these chars as delimiters, it makes sense, but
+for the vast majority of users, the current simple (and minimalistic)
+default should work well.
 
 Why do I support the `filename:colno` syntax? you may ask.
 It seems redundant (since `filename colno` works just as well.)
