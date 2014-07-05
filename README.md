@@ -500,7 +500,7 @@ file is perl:
      our $opt_0 = 0;
 
      # -- Alternative file:colno char separators
-     our $FCsep = ':!#';
+     our $FCsep = ':%#';
 
      # -- Default input column separator (smart)
      our $ICS = '(?:\s*,\s*|\s+)';
@@ -518,14 +518,15 @@ file is perl:
 I made no effort to make `cuts` fast.  Although compared to the
 I/O overhead, there may be not much need for it.  If you have ideas
 on how to make the column extractions and joining more efficient,
-that would be welcome.
+without compromising the simplicity, elegance and generality
+of the code, that would be welcome.
 
 Per file column input delimiters.  I haven't had the need so far so
 that took a back-seat in priority.  The most common case of
 intermixing TSV and CSV files as inputs is working thanks to
-the current default multi-match pattern `$ICS` which simply
-matches all of: multi-white-space, tabs, or (optionally space surrounded)
-commas.  Even an extreme case of a schizophrenic input like:
+the current default multi-match pattern `$ICS`. `$ICS` simply
+matches any of: multi-white-space, tabs, or (optionally space surrounded)
+commas.  This ensures that even an extreme case of a schizophrenic input like:
 
 ```
 $ cat schizo.csv
@@ -535,8 +536,7 @@ $ cat schizo.csv
 a  b   c
 ```
 
-Works correctly, and as designed/expected, with the default smart
-column-delimiter trick:
+Works correctly, and as designed/expected.
 
 ```
 $ cuts -1 schizo.csv
@@ -546,15 +546,15 @@ $ cuts -1 schizo.csv
 c
 ```
 
-I consider it a blissful feature.
+Some may consider this non-purist. I consider it a blissful feature.
 
 Implement `cut` rarely used options?  I haven't had the need for
 them, and if I ever do, I can simply use `cut` itself, so I haven't
-even tried to implement stuff like fixed-width field support,
-byte-offsets, `--complement`, `--characters`.   The basic features
-that `cut` is missing were much more critical for me when writing `cuts`.
+tried to implement fixed-width field support, byte-offsets,
+`--complement`, `--characters`.   The basic features that `cut`
+is missing were much more critical for me when writing `cuts`.
 
-## Other thoughts
+## Other thoughts & notes
 
 Why do I support the `filename:colno` syntax? you may ask.
 It seems redundant (since `filename colno` works just as well.)
@@ -565,19 +565,26 @@ This introduces an ambiguity: are these arguments files or column numbers?
  - Giving priority to files (it first checks arguments for file existence)
  - In case you want to force `1` to a column number, even in the
    presence of a file by the same name, you can use the `file:colno` syntax.
- - You may even use `#`, or `!, as the `file:colno` separator
+ - You may even use `#`, or `%`, as the `file:colno` separator
    instead of `:` for somewhat greater control.
 
 
 Resolving option ambiguity: negative column offsets and `-` for
-`stdin` don't play well with `getopts()`.  `cuts` solves this by auto
-injecting `--` (end of options marker) into `@ARGV` before calling
-getopts when needed.  This is so the user never has to worry about
-the ambiguity.  For example, (`-v` is `cuts` own debugging/verbose
-option, while `-3` is a column index specifier), still this works
-as expected because `cuts` disambiguates correctly:
+`stdin` don't play well with `getopts()` because the code can no longer
+assume that what starts with `-` is an option and not an argument.
+`cuts` solves this by auto injecting `--` (end of options marker)
+into `@ARGV` _before_ calling getopts (if needed).  This is so the
+user never has to worry about the ambiguity.  For example, (`-v` is
+`cuts` own debugging/verbose option, while `-3` is a column index
+specifier), still this works as expected because `cuts`
+disambiguates them correctly:
 
 ```
     $ cuts -v -3 file.txt
 ```
+
+Test suite: `cuts` comes with an extensive test suite to ensure
+that it behaves as designed, and that changes don't cause regressions.
+Running `make` in the top source directory or in the `tests`
+sub-directory will run the test suite.
 

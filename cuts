@@ -31,7 +31,7 @@ my $ConfigFile = "$ENV{HOME}/.cuts.pl";
 our $opt_0 = 0;
 
 # -- Alternative file:colno char separators
-our $FCsep = ':!#';
+our $FCsep = ':%#';
 
 # -- Default input column separator (smart)
 our $ICS = '(?:\s*,\s*|\s+)';
@@ -96,23 +96,24 @@ sub usage(@) {
             Default colno is 0 (or 1 if 1-based indexing is in effect)
 
     Examples:
-        $0 0 file1 file2 file3      Extract & join 1st (0) column from the 3 files
+        $0 0 file1 file2      Extract & join 1st (0) column from the 2 files
 
-        $0 file1 file2 file3 0      Same as above (order of files vs colnos doesn't matter)
+        $0 file1 file2 0      Same as above (flexible argument order)
 
-        $0 file1 file2 file3        Same as above (0 is default colno)
+        $0 file1 file2        Same as above (0 is default colno)
 
-        $0 -1 f1 f2 f3              Last column from each of f1, f2, and f3
+        $0 -1 f1 f2 f3        Last column from each of f1, f2, & f3
 
-        $0 f1:0 f2:-1               1st (0) column from f1 & last column from f2
+        $0 f1:0 f2:-1         1st (0) column from f1 & last column from f2
 
-        $0 0 2 3                    Columns (0,2,3) from /dev/stdin
+        $0 0 2 3              Columns (0,2,3) from /dev/stdin
 
-        $0 f1 0 -1 f2               1st & last columns from f1 & last column (last colno seen) from f2
+        $0 f1 0 -1 f2         1st & last columns from f1
+                                & last column (last colno seen) from f2
 
-        $0 3,5-8 f1                 Columns (3, 5, 6, 7, 8) from f1
+        $0 3,5-8 f1           Columns (3, 5, 6, 7, 8) from f1
 
-        $0 3,8-5 f1                 Same as above, but 5-8 in reverse order
+        $0 3,8-5 f1           Same as above, but 5-8 in reverse order
 ";
 }
 
@@ -381,13 +382,19 @@ cases this isn't needed.
 
  cuts file1 file2          Same as above (0 is default colno)
 
- cuts -1 f1 f2 f3          Extract last column from each of f1, f2, & f3
+ cuts -1 f1 f2 f3          Last column from each of f1, f2, and f3
 
- cuts file1:0 file2:-1     Extract 1st col from file1 & last col from file2
+ cuts f1:0 f2:-1           1st (0) column from f1 & last column from f2
 
- cuts 0 2 3                Extract cols (0,2,3) from /dev/stdin
+ cuts 0 2 3                Columns (0,2,3) from /dev/stdin
 
- cuts f1 0 -1 f2           Extract 1st & last cols from f1 & last col (last colno seen) from f2
+ cuts f1 0 -1 f2           1st & last columns from f1 & last column (last colno seen) from f2
+
+ cuts 3,5-8 f1             Columns (3, 5, 6, 7, 8) from f1
+
+ cuts 3,8-5 f1             Same as above, but 5-8 in reverse order
+
+More examples can be found in the test-suite in the source tree.
 
 =head1 AUTHOR
 
@@ -406,7 +413,7 @@ $ICS input-column separator regex.  The syntax of this file is:
     our $opt_0 = 0;
 
     # -- Alternative file:colno char separators
-    our $FCsep = ':!#';
+    our $FCsep = ':%#';
 
     # -- Default input column separator (smart)
     our $ICS = '(?:\s*,\s*|\s+)';

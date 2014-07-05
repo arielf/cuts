@@ -30,7 +30,7 @@ cuts inp/012.mixed 2 1	                            ref/21.tsv
 
 # file:colno syntax (multiple forms)
 cuts inp/012.mixed:2 inp/012.tsv:1                  ref/21.tsv
-cuts inp/012.mixed!2 inp/012.tsv!1                  ref/21.tsv
+cuts inp/012.mixed%2 inp/012.tsv%1                  ref/21.tsv
 cuts inp/012.mixed#2 inp/012.tsv#1                  ref/21.tsv
 
 # 3 files w/ different delimiters, same column input
