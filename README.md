@@ -546,13 +546,36 @@ $ cuts -1 schizo.csv
 c
 ```
 
-Some may consider this non-purist. I consider it a blissful feature.
+Some may consider this non-purist. I consider it a blissful feature
+because it allows dealing with even poorly structured data-sets.
 
 Implement `cut` rarely used options?  I haven't had the need for
 them, and if I ever do, I can simply use `cut` itself, so I haven't
 tried to implement fixed-width field support, byte-offsets,
 `--complement`, `--characters`.   The basic features that `cut`
 is missing were much more critical for me when writing `cuts`.
+
+## Bugs & Limitations
+
+The most notable remaining issues with `cuts` are (IMHO):
+
+  - Ranges going from positive to negative offsets, e.g. 2--3
+    are interpreted as in reverse order (because 2 > -3).
+    The result is a wrapped-around the beginning index-set
+    This is good because is consistent with the symmetric
+    wrap-around-the-end case of say, -3-2.  OTOH: it is bad because
+    it is not the natural human-way of interpreting negative
+    indexes as being higher (near the end of the line).
+
+  - Speed (vs compiled C)
+
+  - Unexpected results if your data has tabs, spaces, and/or
+    commas within fields.  This is a deliberate design decision
+    (optimize for the most common case.) that can be easily worked-around.
+    If you don't like the default, you can either:
+    - Pass a different delimiter using: -d 'regexp'
+    - Make your choice permanent via the personal config file
+      `~/.cuts.pl` and the `$ICS` (Input Column Separator) variable.
 
 ## Other thoughts & notes
 
@@ -587,4 +610,34 @@ Test suite: `cuts` comes with an extensive test suite to ensure
 that it behaves as designed, and that changes don't cause regressions.
 Running `make` in the top source directory or in the `tests`
 sub-directory will run the test suite.
+
+Historical perspective: `cut` is one of the earliest Unix utilities
+with over 40 years of history.  It's top weaknesses of single char
+delimiters and no support for regexps are a likely a direct result
+of being written so early.  What is surprising is that in 40 years
+no significant improvement to it has been introduced, in particular,
+when POSIX, and the free GNU implemenation came about.
+
+Other implementations of improved `cut`:  before diving into coding
+I searched the web for alternatives.  I found a few, unsurprisingly,
+most written in perl, but none of them were what I was looking for.
+
+I basically wanted an enhanced `cut`, i.e. a tool that fixes
+the top pain-points in `cut` rather than a new beast altogether.
+
+I was looking for a strong combination of power and simplicity.
+Even more so: I wanted more power, but a simpler interface which
+at first looked contradictory, but turned out to be possible.
+
+Replacements that were too weak: e.g. missing ranges, or missing
+negative offsets, or too complex: requiring a big manual nearby,
+or having a long list of options that were cobbled together ad-hoc,
+were out.  So I just had to write my own.
+
+If you like `cuts`, please shoot me an email. If you don't, it is
+free software and it is hosted on github, so consider forking, and
+fixing it, then, shoot me an email.  If you don't know how to code,
+and feel that I should fix it, please email anyway, or open an
+"issue" on github.  Any comment, good a bad, is highly appreciated.
+
 
