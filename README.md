@@ -367,19 +367,24 @@ In addition to having reasonable defaults, `cuts` doesn't force you
 to type more than needed, or enforce an order of arguments on you.
 It tries to be as minimalist as possible in its requirements from the user.
 Compare one of the simplest and most straightforward examples of
-extracting 3 columns from a single file:
+extracting 2 columns (first and third) from a single file:
 
 ```
 # -- the traditional, cut way:
-$ cut -d, -f 1,2,3 file.csv
+$ cut -d, -f 1,3 file.csv
 
-# -- the cuts way: shorter & sweeter:
-$ cuts file.csv 0 1 2
+# -- the cuts way: (almost 30%) shorter & sweeter:
+$ cuts file.csv 0 2
 ```
 
 Minimal typing is also what guided the decision to include the
 functionality of `paste` in `cuts`.
 
+There's one exception to the `cuts` requires less typing: `cut`
+allows half-ranges like `-N` to mean "up to Nth field", for
+example `-3` implies `1-3` (a small saving of a single character
+when typing). Since `cuts` has to support negative offsets which
+are much more improtant, IMHO, full ranges are required.
 
 ### Input flexibility & tolerance to missing data
 
