@@ -95,8 +95,8 @@ cuts 2--1 inp/1-20-wide.csv                         ref/210--1.tsv
 
 # Quoted fields:
 # 1) leave the quotes around the field:
-cuts -d '(?<="),(?=")' 1 inp/abc.quotedcsv          ref/d,e,f.qsv
+cuts -d '(?<=")[, ](?=")' 1 inp/abc.qcsv            ref/d,e,f.qsv
 # 2) strip the quotes, including those at the start/end of line
-cuts -d '(?:^"|"$|",")' 2 3 inp/abc.quotedcsv       ref/d,e,f-x,y,z.tsv
+cuts -d '(?:^"|"$|"[, ]")' 2 3 inp/abc.qcsv         ref/d,e,f-x,y,z.tsv
 
 
