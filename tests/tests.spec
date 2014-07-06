@@ -92,3 +92,12 @@ cuts 2,-4-2 inp/1-20-wide.csv                       ref/2,-4-2.tsv
 # preserve direction, but for now it is a compromise.
 cuts 2--1 inp/1-20-wide.csv                         ref/210--1.tsv
 
+
+# Mixed-separator + quoted fields:
+# 1) leave the quotes around the fields:
+cuts -d '(?<=")[, ](?=")' 1 inp/abc.qcsv            ref/d,e,f.qsv
+# 2) strip the quotes, including those at the start/end of line
+#    note that the 1st quote adds a cut-point, so index is +1
+cuts -d '(?:^"|"$|"[, ]")' 2 3 inp/abc.qcsv         ref/d,e,f-x,y,z.tsv
+
+

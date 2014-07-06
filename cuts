@@ -34,7 +34,10 @@ our $opt_0 = 0;
 our $FCsep = ':%#';
 
 # -- Default input column separator (smart)
-our $ICS = '(?:\s*,\s*|\s+)';
+#       For quoted CSV/TSV/SSV, you may try: -d '^"|"[, \t]"|"$'
+#       Also, see examples in the test-suite
+our $ICS = qr/(?:\s*,\s*|\s+)/;
+
 # -- Default output column separator
 our $OCS = "\t";
 # -- if you use a config file, you must end it with 1;
