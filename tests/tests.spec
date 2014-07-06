@@ -92,3 +92,11 @@ cuts 2,-4-2 inp/1-20-wide.csv                       ref/2,-4-2.tsv
 # preserve direction, but for now it is a compromise.
 cuts 2--1 inp/1-20-wide.csv                         ref/210--1.tsv
 
+
+# Quoted fields:
+# 1) leave the quotes around the field:
+cuts -d '(?<="),(?=")' 1 inp/abc.quotedcsv          ref/d,e,f.qsv
+# 2) strip the quotes, including those at the start/end of line
+cuts -d '(?:^"|"$|",")' 2 3 inp/abc.quotedcsv       ref/d,e,f-x,y,z.tsv
+
+
