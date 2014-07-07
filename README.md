@@ -502,23 +502,23 @@ the `$ICS` input-column separator regexp.  The syntax of this
 file is perl:
 
 ```
-     # -- If you prefer 1-based indexing, by default, set this to 1
-     #    You may also set it from the command-line with the
-     #    -0 option.
-     our $opt_0 = 0;
+    # -- If you prefer 1-based indexing by default, set $opt_0 to 1.
+    #    You may also set it from the command-line with the -0 option.
+    #    This is a mnemonic: the -0 option means "disable 0-based".
+    our $opt_0 = 0;
 
-     # -- Alternative file:colno char separators
-     our $FCsep = ':%#';
+    # -- Alternative file:colno char separators
+    our $FCsep = ':%#';
 
-     # -- Default input column separator (smart)
-     our $ICS = '(?:\s*,\s*|\s+)';
+    # -- Default input column separator (smart)
+    our $ICS = '(?:\s*,\s*|\s+)';
 
-     # -- Default output column separator
-     our $OCS = "\t";
+    # -- Default output column separator
+    our $OCS = "\t";
 
-     # -- if you use a config file, you must end it with 1;
-     # -- so executing it by cuts using perl 'do' succeeds.
-     1;
+    # -- if you use a config file, you must end it with 1;
+    # -- so executing it by cuts using perl 'do' succeeds.
+    1;
 ```
 
 ## TODO items (contributions welcome)
