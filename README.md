@@ -37,9 +37,9 @@ As you can see, `cuts` uses zero-based indexing
 Accordingly, the examples below use 0-based indexing.
 
 If you prefer 1-based indexing, like `cut`, you may easily
-change the default either from the command line, or more
-permanently, via a small config file which is read very early during
-runtime (read on).
+change the default either from the command line (`-0` option),
+or more permanently, via a small config file `~/.cuts.pl`,
+which is read early during runtime (details below).
 
 #### `cuts` supports mixed input delimiters (e.g. both CSV and TSV)
 ```
