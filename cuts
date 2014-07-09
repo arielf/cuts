@@ -17,7 +17,7 @@
 #
 use strict;
 use Getopt::Std;
-use vars qw($opt_v
+use vars qw($opt_v $opt_c
             $opt_s $opt_d $opt_t
             $opt_S $opt_D $opt_T);
 
@@ -31,12 +31,17 @@ my $ConfigFile = "$ENV{HOME}/.cuts.pl";
 #    This is a mnemonic: the -0 option means "disable 0-based".
 our $opt_0 = 0;
 
+# -- Default column to select, when unspecified
+our $DefaultColno = 0;
+
 # -- Alternative file:colno char separators
 our $FCsep = ':%#';
 
-# -- Default input column separator (smart)
-#       For quoted CSV/TSV/SSV, you may try: -d '^"|"[, \t]"|"$'
-#       Also, see examples in the test-suite
+# -- Default input column separator
+#    Smart matching of: CSV[+optional-spaces] / TSV / other-white-space
+#
+#    For quoted CSV/TSV/SSV, you may try: -d '^"|"[, \t]"|"$'
+#    Also, see examples in the test-suite
 our $ICS = qr/(?:\s*,\s*|\s+)/;
 
 # -- Default output column separator
@@ -70,16 +75,15 @@ sub usage(@) {
     Options:
         -v              verbose (mostly for debugging)
         -0              Don't use the default 0-based indexing, use 1-based.
+        -c              Don't use personal config-file (even if exists)
 
         Input column separator options (lowercase):
-          -d <sep>        Use <sep> (perl regexp) as column delimiter
-          -t <sep>        Alias for -d
-          -s <sep>        Another alias for -d
+          -d <sep>      Use <sep> (perl regexp) as input column delimiter
+          -t/-s <sep>   Handy aliases for -d
     
         Output column separator options (mnemonic: uppercase of same):
-          -D <sep>
-          -T <sep>
-          -S <sep>
+          -D <sep>      Use <sep> (string) as output column delimiter
+          -T/-S <sep>   Handy aliases for -D
 
     In rare cases of ambiguity betwee cuts options and arguments
     you may add -- to separate between the two groups.  In most common
@@ -182,10 +186,10 @@ sub get_args {
             last;
         }
     }
-    getopts('v0d:t:s:D:T:S:');
+    getopts('v0cd:t:s:D:T:S:');
     $opt_0 = (defined($opt_0) && $opt_0);
 
-    if (-e $ConfigFile) {
+    if (-e $ConfigFile && ! $opt_c) {
         v("Found config file: %s\n", $ConfigFile);
         do $ConfigFile || die "$0: $ConfigFile: $@\n";
     }
@@ -241,7 +245,7 @@ sub get_args {
     }
     # make the two lists (@Files, @ColNos) same length by repeating last
     if (@Files > @ColNos) {
-        $last_col = 0 unless (defined $last_col);
+        $last_col = $DefaultColno unless (defined $last_col);
         while (@Files > @ColNos) {
             push(@ColNos, $last_col);
         }
@@ -364,15 +368,13 @@ supports:
     -v              verbose (mostly for debugging)
     -0              Don't use the default 0-based indexing, use 1-based.
 
-Input column separator options (lowercase):
-    -d <sep>        Use <sep> (perl regexp) as column delimiter
-    -t <sep>        Alias for -d
-    -s <sep>        Another alias for -d
+    Input column separator options (lowercase):
+      -d <sep>      Use <sep> (perl regexp) as input column delimiter
+      -t/-s <sep>   Handy aliases for -d
     
-Output column separator options (mnemonic: uppercase of same):
-    -D <sep>
-    -T <sep>
-    -S <sep>
+    Output column separator options (mnemonic: uppercase of same):
+      -D <sep>      Use <sep> (string) as output column delimiter
+      -T/-S <sep>   Handy aliases for -D
 
 In rare cases of ambiguity betwee cuts options and arguments
 you may add -- to separate between the two groups.  In most common
@@ -417,10 +419,17 @@ $ICS input-column separator regex.  The syntax of this file is:
     #    This is a mnemonic: the -0 option means "disable 0-based".
     our $opt_0 = 0;
 
+    # -- Default column to select, when unspecified
+    our $DefaultColno = 0;
+
     # -- Alternative file:colno char separators
     our $FCsep = ':%#';
 
-    # -- Default input column separator (smart)
+    # -- Default input column separator
+    #    Smart matching of: CSV[+optional-spaces] / TSV / other-white-space
+    #
+    #    For quoted CSV/TSV/SSV, you may try: -d '^"|"[, \t]"|"$'
+    #    Also, see examples in the test-suite.
     our $ICS = '(?:\s*,\s*|\s+)';
 
     # -- Default output column separator
