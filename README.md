@@ -14,6 +14,10 @@ The following list demonstrates what is missing in `cut` and why
 I felt the need to write `cuts`:
 
 #### `cuts` automatically detects the file input column delimiter:
+
+In ~90% of common cases there's no need to pass the delimiter.
+The other ~10% are covered via supported options.
+
 ```
 #
 # -- cut doesn't:
@@ -32,12 +36,12 @@ $ cuts 0 test.dat
 0
 ```
 As you can see, `cuts` uses zero-based indexing
-(index 0 means 1st column) by default. 
+(index 0 means 1st column) by default.
 
 Accordingly, the examples below use 0-based indexing.
 
 If you prefer 1-based indexing, like `cut`, you may easily
-change the default either from the command line (`-0` option),
+change the default, either via the command line (`-0` option),
 or more permanently, via a small config file `~/.cuts.pl`,
 which is read early during runtime (details below).
 
@@ -74,7 +78,7 @@ $ cuts 1 t.mixed
 # -- cut doesn't output columns side-by-side when reading from
 #    multiple input files, even though this is the most useful
 #    and expected thing to do.
-#    (It requires a separate utility like "paste")
+#    (Requiring a separate utility like "paste")
 #
 
 #
@@ -97,7 +101,7 @@ b
 Y
 
 #
-# -- cuts does automatic side-by-side printing:
+# -- cuts does automatic side-by-side printing, as expected:
 #
 $ cuts 1 t.tsv t.tsv
 1	1
@@ -107,8 +111,8 @@ Y	Y
 
 #### `cuts` supports multi-char column delimiters
 
-In particular, standard `cut` can't deal with the very
-common case of any white-space sequence:
+In particular, standard `cut` can't deal with the common case
+of any white-space sequence:
 
 ```
 #
@@ -127,7 +131,8 @@ $ cut -d' ' -f2 012.txt
 
 
 #
-# -- cuts does what makes sense:
+# -- cuts does what makes sense
+#    while not requiring explict user action:
 #
 $ cuts 1 012.txt
 1
@@ -135,11 +140,11 @@ $ cuts 1 012.txt
 1
 ```
 
-#### `cuts` supports powerful (perl style) regexp delimiters
+#### `cuts` supports powerful, perl style, regexp delimiters
 
 When your delimiter is a bit more complex (say, any sequence of non-digits)
 and you have `cut`, you're out-of-luck. `cuts` fixes this by allowing you
-to specify any perl regular-expression (regexp) as the delimiter:
+to specify any `perl` regular-expression (regexp) as the delimiter:
 
 ```
 #
@@ -151,8 +156,8 @@ $ cat 012.regex
 0 aa 1 bbbbbbb 2
 
 #
-# -- cuts accepts perl regexps for delimiters
-#    in this case, we set delimiter regexp to any sequence of non-digits
+# -- cuts accepts perl regexps for input delimiters
+#    in this case, we set the delimiter regexp to "any sequence of non-digits"
 #
 $ cuts -d '[^0-9]+' 1 012.regex
 1
@@ -160,11 +165,11 @@ $ cuts -d '[^0-9]+' 1 012.regex
 1
 ```
 
-#### `cuts` supports negative (from end) column numbers
+#### `cuts` supports negative (from-end) column numbers
 
-This is very useful when you have, say, 257 fields (but you haven't counted
+This is useful when you have, say, 257 fields (but you haven't counted
 them, so you don't really know), and you're interested in the last field,
-or the one before the last etc.  `cuts` supports negative offsets
+or the one before the last, etc.  `cuts` supports negative offsets
 from the end:
 
 ```
@@ -195,7 +200,7 @@ $ cut -f3,2,1 file.tsv
 #
 # -- cuts does exactly what you ask it to:
 #
-$ cuts 2 1 0 file.tsv 
+$ cuts 2 1 0 file.tsv
 2	1	0
 2	1	0
 2	1	0
@@ -226,18 +231,19 @@ phone-number
 444-5555
 ```
 
-#### `cuts` is forgiving if you accidentally use `-t` (like `sort` does)
+#### `cuts` forgives you if you accidentally use `-t` (like `sort` does)
 
 It is unfortunate that the Unix toolset is so inconsistent in the
 choice of option-letters.  `cuts` solves this by allowing 'any of
-the above'. So if you accidentally use `-s` instead of `-d` because
-you think "separator" instead of "delimiter" - it still works
-(and `-t`, which is used by `sort`, works just as well).
+the above' in these cases. So if you accidentally use `-s` instead of
+`-d` because you think "separator" instead of "delimiter", or `-t`
+instead of `-d` because you have the `sort` convention in your head,
+`cuts` still works as you expect it to.
 
 #### `cuts` requires minimal typing for simple column extraction tasks
 
-`cut` is harder to use, and less friendly because it doesn't support
-reasonable defaults. For example:
+`cut` is harder to use, and somewhat less friendly because it doesn't
+support reasonable defaults. For example:
 
 ```
 #
@@ -265,21 +271,31 @@ Obviously with the power of the `bash` shell you can do stuff like:
     $ paste <(cut -d, -f1 file.csv) <(cut -d"<TAB>" -f2 file.tsv)
 ```
 
-but that requires too much typing (3 commands & shell-magic),
-while still not supporting regexp-style delimiters and offsets from end.
+but that requires too much typing (3 commands, using SHIFTs on the
+keyboard, & shell-magic), while still not supporting regexp-style
+delimiters and offsets from end.
 
-Compare the above to the much simpler, and more intuitive, `cuts` version,
+Compare the above to the simpler, and more intuitive, `cuts` version,
 which works right out of the box, in any shell:
 
 ```
+#
+# -- example input:
+#
 $ cat file.tsv
 0	1	2
 a	b	c
 
+#
+# -- another example input, but with different delimiters
+#
 $ cat file.csv
 0,1,2
 a,b,c
 
+# -- "cuts" does exactly what you ask it to,
+#    both slicing and joining as expected.
+#
 $ cuts file.csv 0 file.tsv 1
 0	1
 a	b
@@ -287,6 +303,9 @@ a	b
 
 #### `cuts` supports reverse-ranges and range wrap-arounds
 ```
+#
+# -- example input with variable number of columns
+#
 $ cat 1-20-wide.csv
 0,1,2,3,4,5,6,7,8,9,10
 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
@@ -318,11 +337,11 @@ $ cuts -1-2 1-20-wide.csv
 
 ```
 
-Other utilities, like `awk` or `perl` give you more power at the expense
-of having to learn a much more complex language to do what you want.
+Other utilities, like `awk` or `perl` give you more power, at the expense
+of having to learn a more complex language, to do what you want.
 
 `cuts` is designed to give you the power you need in almost all cases,
-while always being able to stay on the command line and keeping
+while always being able to stay on the command line, and keeping
 the human interface _as simple and minimalist as possible_
 
 `cuts` arguments can be:
@@ -341,16 +360,16 @@ cuts.
 
 ### Reasonable defaults for everything
 
+An unspecified file-name will default to `/dev/stdin`
+so you can easily pipe any other command output into `cuts`.
+
+An unspecified column-number will default to the 1st column (0)
+
 A file-name without a column-number will cause the *last* specified
 column-number to be reused.
 
 A column-number without a file-name will cause the *last* specified
 file-name to be reused.
-
-An unspecified column-number will default to the 1st column (0)
-
-An unspecified file-name will default to `/dev/stdin`so you can easily pipe
-any other command output into `cuts`.
 
 By default, the input column delimiter is the most common case of
 any-sequence of white-space *or* a comma, optionally surrounded by
@@ -446,16 +465,15 @@ Usage: cuts [Options] [Column_Specs]...
     Options:
         -v              verbose (mostly for debugging)
         -0              Don't use the default 0-based indexing, use 1-based
+        -c              Don't use personal config-file (even if exists)
 
-        Input column delimiter options (lowercase):
-        -d <sep>        Use <sep> (perl regexp) as column delimiter
-        -t <sep>        Alias for -d
-        -s <sep>        Another alias for -d
-    
-        Output column delimiter options (uppercase of same):
-        -D <sep>
-        -T <sep>
-        -S <sep>
+        Input column separator options (lowercase):
+          -d <sep>      Use <sep> (perl regexp) as input column delimiter
+          -t/-s <sep>   Handy aliases for -d
+
+        Output column separator options (mnemonic: uppercase of same):
+          -D <sep>      Use <sep> (string) as output column delimiter
+          -T/-S <sep>   Handy aliases for -D
 
     Column_Specs:
         filename:colno  Extract colno from filename
@@ -494,7 +512,7 @@ Usage: cuts [Options] [Column_Specs]...
 ## Further configuration & customization
 
 If you don't like `cuts` defaults, you can override them in
-an optional personal configuration ~/.cuts.pl
+an optional personal configuration file: `~/.cuts.pl`
 
 If this file exists, cuts will read it during startup allowing you
 override cuts default parameters, in particular the value of
@@ -507,10 +525,17 @@ file is perl:
     #    This is a mnemonic: the -0 option means "disable 0-based".
     our $opt_0 = 0;
 
+    # -- Default column to select, when unspecified
+    our $DefaultColno = 0;
+
     # -- Alternative file:colno char separators
     our $FCsep = ':%#';
 
-    # -- Default input column separator (smart)
+    # -- Default input column separator
+    #    Smart matching of: CSV[+optional-spaces] / TSV / other-white-space
+    #
+    #    For quoted CSV/TSV/SSV, you may try: -d '^"|"[, \t]"|"$'
+    #    Also, see examples in the test-suite
     our $ICS = '(?:\s*,\s*|\s+)';
 
     # -- Default output column separator

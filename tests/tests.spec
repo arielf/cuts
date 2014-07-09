@@ -17,6 +17,9 @@ cuts 1 2 inp/012.tsv                                ref/12.tsv
 # reverse fields
 cuts 2 1 0 inp/012.tsv                              ref/210.tsv
 
+# default column selection
+cuts inp/012.mixed inp/012.csv	                    ref/00.tsv
+
 # convert tsv to csv (all fields included)
 # 3 equivalent option forms
 cuts -T, 0 1 2 inp/012.tsv                          ref/012.csv
