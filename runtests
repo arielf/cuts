@@ -3,13 +3,19 @@
 # Bare-bones test suite for cuts
 # Add more tests in tests/tests.spec
 #
+use Getopt::Std;
+use vars qw($opt_c);
+
 $ENV{'PATH'} = '.:..:/bin:/usr/bin';
 
 my $TestNo = 0;
 my $Fails = 0;
 my $OKs = 0;
 
-printf "cuts is: %s", `which cuts`;
+getopts('c:');
+
+$Cuts = $opt_c || `which cuts`;
+printf "cuts is: %s", $Cuts;
 
 while (<>) {
     # skip comments and empty lines

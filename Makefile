@@ -1,6 +1,8 @@
+CUTS = cuts
+
 all:: test
 
 test:
-	(cd tests && ../runtests tests.spec)
+	(cd tests && ../runtests -c $(CUTS) tests.spec)
 
 
