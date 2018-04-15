@@ -116,8 +116,7 @@ sub usage(@) {
 
         $0 0 2 3              Columns (0,2,3) from /dev/stdin
 
-        $0 f1 0 -1 f2         1st & last columns from f1
-                                & last column (last colno seen) from f2
+        $0 f1 0 -1 f2 -1      1st & last columns from f1 & last column from f2
 
         $0 3,5-8 f1           Columns (3, 5, 6, 7, 8) from f1
 
@@ -394,7 +393,7 @@ cases this isn't needed.
 
  cuts 0 2 3                Columns (0,2,3) from /dev/stdin
 
- cuts f1 0 -1 f2           1st & last columns from f1 & last column (last colno seen) from f2
+ cuts f1 0 -1 f2 -1        1st & last columns from f1 & last column from f2
 
  cuts 3,5-8 f1             Columns (3, 5, 6, 7, 8) from f1
 
