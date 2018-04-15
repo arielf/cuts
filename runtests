@@ -15,7 +15,7 @@ my $OKs = 0;
 getopts('c:');
 
 $Cuts = $opt_c || `which cuts`;
-printf "cuts is: %s", $Cuts;
+printf "cuts is: %s\n", $Cuts;
 
 while (<>) {
     # skip comments and empty lines
