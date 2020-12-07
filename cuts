@@ -80,7 +80,7 @@ sub usage(@) {
         Input column separator options (lowercase):
           -d <sep>      Use <sep> (perl regexp) as input column delimiter
           -t/-s <sep>   Handy aliases for -d
-    
+
         Output column separator options (mnemonic: uppercase of same):
           -D <sep>      Use <sep> (string) as output column delimiter
           -T/-S <sep>   Handy aliases for -D
@@ -213,7 +213,16 @@ sub get_args {
         # -- filename
         if (-f $arg || $arg eq '-') {
             v("filename: arg='%s'\n", $arg);
-            $arg = '/dev/stdin' if ($arg eq '-');
+            if ($arg =~ /^\d+$/) {
+                print STDERR "Warning: existing File '$arg': " .
+                             "looks like ColNo (unintended?)\n";
+            }
+            # auto-detect gz file + decompress on the fly
+            if ($arg =~ /\.gz$/) {
+                $arg = "zcat $arg|";
+            } elsif ($arg eq '-') {
+                $arg = '/dev/stdin'
+            }
             push(@Files, $arg);
             $last_file = $arg;
         } elsif ($arg =~ /^-?\d+$/) {
@@ -242,6 +251,8 @@ sub get_args {
             usage("$arg: no such file (or unsupported argument)");
         }
     }
+    v("init: after arg loop: \@Files=(@Files) \@ColNos=(@ColNos)\n");
+
     # make the two lists (@Files, @ColNos) same length by repeating last
     if (@Files > @ColNos) {
         $last_col = $DefaultColno unless (defined $last_col);
@@ -370,7 +381,7 @@ supports:
     Input column separator options (lowercase):
       -d <sep>      Use <sep> (perl regexp) as input column delimiter
       -t/-s <sep>   Handy aliases for -d
-    
+
     Output column separator options (mnemonic: uppercase of same):
       -D <sep>      Use <sep> (string) as output column delimiter
       -T/-S <sep>   Handy aliases for -D
