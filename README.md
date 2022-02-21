@@ -624,7 +624,6 @@ This introduces an ambiguity: are these arguments files or column numbers?
  - You may even use `#`, or `%`, as the `file:colno` separator
    instead of `:` for somewhat greater control.
 
-
 #### Resolving option ambiguity
 
 Negative column offsets and `-` for `stdin` don't play well
@@ -683,6 +682,4 @@ If you like `cuts`, please send me an email via github.2009
 If you don't, `cuts` is free software and it is hosted on github,
 so consider forking, and fixing it.  If you don't know how to code,
 and feel that I should fix it, please email anyway, or open an
-"issue" on github.  Any comment, good a bad, is highly appreciated.
-
-
+issue on github.  Any comment, good a bad, is appreciated.
