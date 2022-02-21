@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
 # vim: ts=4 sw=4 expandtab
 #
-# This is somewhat similar to the traditional Unix/POSIX 'cut' utility,
-# but in a humble effort to blunt "the Unix Haters Handbook," it is
-# made more powerful, and actually useful:
+# Somewhat similar to the traditional Unix/POSIX 'cut' utility,
+# but in a humble effort to blunt "the Unix Haters Handbook,"
+# it is more powerful, and actually useful:
 #
 #   - Supports automatic determination of input-column separator
 #   - Supports regexps for input-column separator
@@ -85,9 +85,9 @@ sub usage(@) {
           -D <sep>      Use <sep> (string) as output column delimiter
           -T/-S <sep>   Handy aliases for -D
 
-    In rare cases of ambiguity betwee cuts options and arguments
-    you may add -- to separate between the two groups.  In most common
-    cases this isn't needed.
+    In rare cases of ambiguity between options & arguments,
+    you may add -- to separate between the two groups.
+    In most common cases this isn't needed.
 
     Column_Specs:
         filename:colno  Extract colno from filename
@@ -141,15 +141,25 @@ sub expand_list($) {
         if ($term =~ /^(-?\d+)-(-?\d+)$/) {
             my $reverse_order = 0;
             my ($from, $to) = ($1, $2);
+            # -- Try to support "natural" positive to negative ranges
+            #    doesn't work here because we don't yet know the number
+            #    of columns in later input and perl '..' operator doesn't
+            #    support ($from .. $to) when ($from > $to)
+            # my $pos2neg = ($from >= 0 && $to < 0);
+            # Don't reverse positive to negative (from end) order
+            # if ($from > $to and !$pos2neg) {
             if ($from > $to) {
-                # be helpful, quietly fix wrong orders
+                # Quietly fix wrong orders
                 my $tmp = $from;
                 $from = $to;
                 $to = $tmp;
                 $reverse_order = 1;
             }
             my @sub_list = $from .. $to;
-            @sub_list =  reverse(@sub_list) if ($reverse_order);
+            if ($reverse_order) {
+                @sub_list = reverse(@sub_list);
+            }
+
             push(@list, @sub_list);
             next;
         }
