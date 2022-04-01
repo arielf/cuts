@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
 # vim: ts=4 sw=4 expandtab
 #
-# This is somewhat similar to the traditional Unix/POSIX 'cut' utility,
-# but in a humble effort to blunt "the Unix Haters Handbook," it is
-# made more powerful, and actually useful:
+# Somewhat similar to the traditional Unix/POSIX 'cut' utility,
+# but in a humble effort to blunt "the Unix Haters Handbook,"
+# it is more powerful, and actually useful:
 #
 #   - Supports automatic determination of input-column separator
 #   - Supports regexps for input-column separator
@@ -80,14 +80,14 @@ sub usage(@) {
         Input column separator options (lowercase):
           -d <sep>      Use <sep> (perl regexp) as input column delimiter
           -t/-s <sep>   Handy aliases for -d
-    
+
         Output column separator options (mnemonic: uppercase of same):
           -D <sep>      Use <sep> (string) as output column delimiter
           -T/-S <sep>   Handy aliases for -D
 
-    In rare cases of ambiguity betwee cuts options and arguments
-    you may add -- to separate between the two groups.  In most common
-    cases this isn't needed.
+    In rare cases of ambiguity between options & arguments,
+    you may add -- to separate between the two groups.
+    In most common cases this isn't needed.
 
     Column_Specs:
         filename:colno  Extract colno from filename
@@ -116,8 +116,7 @@ sub usage(@) {
 
         $0 0 2 3              Columns (0,2,3) from /dev/stdin
 
-        $0 f1 0 -1 f2         1st & last columns from f1
-                                & last column (last colno seen) from f2
+        $0 f1 0 -1 f2 -1      1st & last columns from f1 & last column from f2
 
         $0 3,5-8 f1           Columns (3, 5, 6, 7, 8) from f1
 
@@ -142,15 +141,25 @@ sub expand_list($) {
         if ($term =~ /^(-?\d+)-(-?\d+)$/) {
             my $reverse_order = 0;
             my ($from, $to) = ($1, $2);
+            # -- Try to support "natural" positive to negative ranges
+            #    doesn't work here because we don't yet know the number
+            #    of columns in later input and perl '..' operator doesn't
+            #    support ($from .. $to) when ($from > $to)
+            # my $pos2neg = ($from >= 0 && $to < 0);
+            # Don't reverse positive to negative (from end) order
+            # if ($from > $to and !$pos2neg) {
             if ($from > $to) {
-                # be helpful, quietly fix wrong orders
+                # Quietly fix wrong orders
                 my $tmp = $from;
                 $from = $to;
                 $to = $tmp;
                 $reverse_order = 1;
             }
             my @sub_list = $from .. $to;
-            @sub_list =  reverse(@sub_list) if ($reverse_order);
+            if ($reverse_order) {
+                @sub_list = reverse(@sub_list);
+            }
+
             push(@list, @sub_list);
             next;
         }
@@ -161,6 +170,15 @@ sub expand_list($) {
     }
     v("expand_list(%s): (%s)\n", $spec, join(' ', @list));
     @list;
+}
+
+sub special_arg_2_file($) {
+    my $arg = shift;
+
+    return '/dev/stdin' if ($arg =~ m,^(?:/dev/stdin|-)$,);
+    return $arg if (! -f $arg);
+    return "zcat $arg|" if ($arg =~ /\.gz$/);
+    return $arg;
 }
 
 sub get_args {
@@ -204,7 +222,7 @@ sub get_args {
     }
     my ($last_file, $last_col);
 
-    my $fc_pat = sprintf('^([^%s]+)[%s](-?[0-9]+)$', $FCsep, $FCsep);
+    my $fc_pat = sprintf('^([^%s]+)[%s](-?\d+)$', $FCsep, $FCsep);
     # v("fc_pat: %s\n", $fc_pat);
     my $list_term_pat = '(?:-?\d+(?:--?\d+)?|)';
     my $list_spec_pat = qr/^$list_term_pat(?:,$list_term_pat)*$/o;
@@ -212,9 +230,26 @@ sub get_args {
     foreach my $arg (@ARGV) {
         # v("arg: %s\n", $arg);
         # -- filename
-        if (-f $arg || $arg eq '-') {
+        if ($arg =~ /$fc_pat/o) {
+            # -- filename:colno
+            my ($file, $colno) = ($1, $2);
+            v("filename:colno: %s =~ /%s/ -> (%s, %s)\n",
+                               $arg, $fc_pat, $file, $colno);
+            $file = special_arg_2_file($file);
+            if (-e $file) {
+                push(@Files, $file);
+                push(@ColNos, $colno);
+            } else {
+                die "$0: arg: $arg, but $file: $!\n";
+            }
+        } elsif (-f $arg || $arg eq '-') {
             v("filename: arg='%s'\n", $arg);
-            $arg = '/dev/stdin' if ($arg eq '-');
+            if ($arg =~ /^\d+$/) {
+                print STDERR "Warning: existing File '$arg': " .
+                             "looks like ColNo (unintended?)\n";
+            }
+            # auto-detect gz file + decompress on the fly
+            $arg = special_arg_2_file($arg);
             push(@Files, $arg);
             $last_file = $arg;
         } elsif ($arg =~ /^-?\d+$/) {
@@ -228,21 +263,12 @@ sub get_args {
             my @list = expand_list($arg);
             push(@ColNos, @list);
             $last_col = $list[-1];
-        } elsif ($arg =~ /$fc_pat/o) {
-            # -- filename:colno
-            my ($file, $colno) = ($1, $2);
-            v("filename:colno: %s =~ /%s/ -> (%s, %s)\n",
-                               $arg, $fc_pat, $file, $colno);
-            if (-f $file) {
-                push(@Files, $file);
-                push(@ColNos, $colno);
-            } else {
-                die "$0: arg: $arg, but $file: $!\n";
-            }
         } else {
             usage("$arg: no such file (or unsupported argument)");
         }
     }
+    v("init: after arg loop: \@Files=(@Files) \@ColNos=(@ColNos)\n");
+
     # make the two lists (@Files, @ColNos) same length by repeating last
     if (@Files > @ColNos) {
         $last_col = $DefaultColno unless (defined $last_col);
@@ -371,7 +397,7 @@ supports:
     Input column separator options (lowercase):
       -d <sep>      Use <sep> (perl regexp) as input column delimiter
       -t/-s <sep>   Handy aliases for -d
-    
+
     Output column separator options (mnemonic: uppercase of same):
       -D <sep>      Use <sep> (string) as output column delimiter
       -T/-S <sep>   Handy aliases for -D
@@ -394,7 +420,7 @@ cases this isn't needed.
 
  cuts 0 2 3                Columns (0,2,3) from /dev/stdin
 
- cuts f1 0 -1 f2           1st & last columns from f1 & last column (last colno seen) from f2
+ cuts f1 0 -1 f2 -1        1st & last columns from f1 & last column from f2
 
  cuts 3,5-8 f1             Columns (3, 5, 6, 7, 8) from f1
 
