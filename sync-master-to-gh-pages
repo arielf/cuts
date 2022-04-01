@@ -14,7 +14,9 @@ function die() {
 }
 
 function ensure-clean() {
-    if [[ -z "$(git status --porcelain)" ]]; then
+    # if [[ -z "$(git status --porcelain)" ]]; then
+    # if git diff-index HEAD; then
+    if git diff --exit-code; then
         echo "Cool: branch $(cur-branch) is clean"
     else
         die "Branch $(cur-branch): NOT clean, please commit/fix"
