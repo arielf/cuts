@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# sync master to gh-pages
+#
+set -ue
+
+function cur-branch() {
+    git rev-parse --abbrev-ref HEAD
+}
+
+function die() {
+    echo "$@" >&2
+    exit 1
+}
+
+function ensure-clean() {
+    if [[ -z "$(git status --porcelain)" ]]; then
+        echo "Cool: branch $(cur-branch) is clean"
+    else
+        die "Branch $(cur-branch): NOT clean, please commit/fix"
+    fi
+}
+
+
+git checkout master && ensure-clean
+git checkout gh-pages && ensure-clean
+
+git merge master
+git push origin gh-pages
+git checkout master
