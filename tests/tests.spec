@@ -72,7 +72,7 @@ cuts -d '\s+' -1 inp/012.tsv                        ref/2.tsv
 cuts -s '\s+' -1 inp/012.tsv                        ref/2.tsv
 cuts -t '\s+' -1 inp/012.tsv                        ref/2.tsv
 
-# list spec expansions, incl 
+# list spec expansions, incl
 cuts 1-3,2,5-7 inp/1-20-wide.csv                    ref/1-3,2,5-7.tsv
 cuts ,1-3,2,5-7 inp/1-20-wide.csv                   ref/1-3,2,5-7.tsv
 cuts 1-3,,,2,5,6,7 inp/1-20-wide.csv                ref/1-3,2,5-7.tsv
@@ -109,4 +109,7 @@ cuts -d '(?<=")[, ](?=")' 1 inp/abc.qcsv            ref/d,e,f.qsv
 #    note that the 1st quote adds a cut-point, so index is +1
 cuts -d '(?:^"|"$|"[, ]")' 2 3 inp/abc.qcsv         ref/d,e,f-x,y,z.tsv
 
-
+touch 1                                             ref/empty
+echo "a  b c" | cuts -- -:1                         ref/1-with-file.tsv
+echo "a  b c" | cuts /dev/stdin:1                   ref/1-with-file.tsv
+rm -f 1                                             ref/empty

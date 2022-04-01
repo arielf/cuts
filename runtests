@@ -58,4 +58,3 @@ printf "Summary: %d tests, %d successful (%.2f%% OK)\n",
     $TestNo, $OKs, 100.0*$OKs/$TestNo;
 
 exit $Fails;
-
