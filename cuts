@@ -199,7 +199,15 @@ sub get_args {
             next;
         }
         last unless ($arg =~ /^-/);
-        if ($arg =~ /^-\d*$/ && $arg ne '-0' or $arg =~ /^-\d+--?\d+$/) {
+        if ($arg eq '--') {
+            # already has a end-op-options '--' separator
+            # (no need to inject '--' to disambiguate)
+            last;
+        }
+        if ($arg =~ /^-\d*$/ && $arg ne '-0'
+            or $arg =~ /^-\d+--?\d+$/
+            or $arg =~ /^-(?:\:-?\d+)?$/) {
+
             splice(@ARGV, $i, 0, '--');
             last;
         }
