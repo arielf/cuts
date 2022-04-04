@@ -111,5 +111,7 @@ cuts -d '(?:^"|"$|"[, ]")' 2 3 inp/abc.qcsv         ref/d,e,f-x,y,z.tsv
 
 touch 1                                             ref/empty
 echo "a  b c" | cuts -- -:1                         ref/1-with-file.tsv
+# Same test, but without '--', should work as well
+echo "a  b c" | cuts -:1                            ref/1-with-file.tsv
 echo "a  b c" | cuts /dev/stdin:1                   ref/1-with-file.tsv
 rm -f 1                                             ref/empty
